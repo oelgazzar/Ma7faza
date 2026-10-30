@@ -18,6 +18,22 @@ class TransactionFormStateTest {
     }
 
     @Test
+    fun `new form defaults to EXPENSE`() {
+        val form = TransactionFormState(date = date)
+        assertEquals(TransactionType.EXPENSE, form.type)
+    }
+
+    @Test
+    fun `changing type to INCOME is reflected in validated transaction`() {
+        val form = TransactionFormState(date = date)
+        form.name.setTextAndPlaceCursorAtEnd("Salary")
+        form.amount.setTextAndPlaceCursorAtEnd("25000")
+        form.updateType(TransactionType.INCOME)
+
+        assertEquals(TransactionType.INCOME, form.validate()?.type)
+    }
+
+    @Test
     fun `validate on an empty form shows both errors`() {
         val form = TransactionFormState(date = date)
         assertNull(form.validate())
@@ -47,6 +63,21 @@ class TransactionFormStateTest {
                 type = TransactionType.EXPENSE
             )
         val form = TransactionFormState.fromTransaction(original)
+        assertEquals(original, form.validate())
+    }
+
+    @Test
+    fun `editing an existing income transaction preserves its type`() {
+        val original = Transaction(
+            id = 8,
+            name = "Salary",
+            amountMinor = 2_500_000,
+            date = date,
+            type = TransactionType.INCOME
+        )
+        val form = TransactionFormState.fromTransaction(original)
+
+        assertEquals(TransactionType.INCOME, form.type)
         assertEquals(original, form.validate())
     }
 }
