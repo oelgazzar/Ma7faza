@@ -32,6 +32,31 @@ class TransactionFormValidationTest {
     }
 
     @Test
+    fun `validateTransactionForm preserves INCOME type`() {
+        val result = validateTransactionForm(
+            id = 2,
+            name = "Salary",
+            amount = "25000",
+            note = null,
+            date = LocalDate.of(2026, 10, 29),
+            type = TransactionType.INCOME
+        )
+
+        assertEquals(
+            TransactionFormValidationResult.Success(
+                Transaction(
+                    id = 2,
+                    name = "Salary",
+                    amountMinor = 2_500_000,
+                    date = LocalDate.of(2026, 10, 29),
+                    type = TransactionType.INCOME
+                )
+            ),
+            result
+        )
+    }
+
+    @Test
     fun `validateTransactionForm should return EmptyName Error when name is empty`() {
         val result = validateTransactionForm(
             id = 1,
@@ -76,9 +101,7 @@ class TransactionFormValidationTest {
 
         assertEquals(
             TransactionFormValidationResult.Error(
-                listOf(
-                    TransactionFormValidationError.EmptyAmount
-                )
+                listOf(TransactionFormValidationError.EmptyAmount)
             ), result
         )
     }
@@ -96,9 +119,7 @@ class TransactionFormValidationTest {
 
         assertEquals(
             TransactionFormValidationResult.Error(
-                listOf(
-                    TransactionFormValidationError.InvalidAmount
-                )
+                listOf(TransactionFormValidationError.InvalidAmount)
             ), result
         )
     }
@@ -116,9 +137,7 @@ class TransactionFormValidationTest {
 
         assertEquals(
             TransactionFormValidationResult.Error(
-                listOf(
-                    TransactionFormValidationError.InvalidAmount
-                )
+                listOf(TransactionFormValidationError.InvalidAmount)
             ), result
         )
     }
@@ -136,9 +155,7 @@ class TransactionFormValidationTest {
 
         assertEquals(
             TransactionFormValidationResult.Error(
-                listOf(
-                    TransactionFormValidationError.InvalidAmount
-                )
+                listOf(TransactionFormValidationError.InvalidAmount)
             ), result
         )
     }
@@ -212,12 +229,10 @@ class TransactionFormValidationTest {
                 listOf(
                     TransactionFormValidationError.EmptyName,
                     TransactionFormValidationError.ZeroAmount
-
                 )
             ), result
         )
     }
-
 
     @Test
     fun `passing name and note with white spaces return trimmed version`() {
