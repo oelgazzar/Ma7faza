@@ -19,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,7 +32,6 @@ import com.example.ma7faza.ui.expenses.form.components.LoadingScreen
 import com.example.ma7faza.ui.expenses.form.components.NameField
 import com.example.ma7faza.ui.expenses.form.components.NoteField
 import com.example.ma7faza.ui.theme.AppTheme
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -67,11 +65,14 @@ fun ExpenseFormScreen(
     ) { innerPadding ->
         when (val ui = uiState) {
             ExpenseFormUiState.Loading -> {
-                LoadingScreen()
+                LoadingScreen(
+                    modifier = Modifier.padding(innerPadding)
+                )
             }
             ExpenseFormUiState.Error -> {
                 ErrorScreen(
-                    onBack = navigateBack
+                    onBack = navigateBack,
+                    modifier = Modifier.padding(innerPadding)
                 )
             }
             is ExpenseFormUiState.Success ->

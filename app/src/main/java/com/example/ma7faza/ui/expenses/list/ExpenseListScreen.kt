@@ -1,23 +1,18 @@
 package com.example.ma7faza.ui.expenses.list
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,7 +21,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ma7faza.R
 import com.example.ma7faza.data.sample.sampleExpenses
-import com.example.ma7faza.domain.models.Expense
 import com.example.ma7faza.ui.theme.AppTheme
 import kotlinx.serialization.Serializable
 
@@ -53,9 +47,11 @@ fun ExpenseListScreen(
     ) { innerPadding ->
         ExpenseListContent(
             uiState,
+            onAddExpense = onAddExpense,
             onEditExpense = onEditExpense,
             onDelete = viewModel::deleteExpense,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         )
     }
@@ -64,6 +60,7 @@ fun ExpenseListScreen(
 @Composable
 private fun ExpenseListContent(
     uiState: ExpenseListUiState,
+    onAddExpense: () -> Unit,
     onEditExpense: (Long) -> Unit,
     onDelete: (Long) -> Unit,
     modifier: Modifier = Modifier
@@ -88,10 +85,9 @@ private fun ExpenseListContent(
 
         is ExpenseListUiState.Success -> {
             if (uiState.expenses.isEmpty()) {
-                Text(
-                    "No expenses", modifier = Modifier
-                        .fillMaxSize()
-                        .wrapContentSize()
+                EmptyScreen(
+                    onAddExpense = onAddExpense,
+                    modifier
                 )
             } else {
                 LazyColumn(
@@ -101,37 +97,13 @@ private fun ExpenseListContent(
                 ) {
                     items(uiState.expenses, key = { it.id }) { expense ->
                         ExpenseRow(
-                            expense, onDelete,
+                            expense,
+                            onEdit = onEditExpense,
+                            onDelete,
                             modifier = Modifier.fillMaxWidth()
-                                .clickable(onClick = { onEditExpense(expense.id) })
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ExpenseRow(
-    expense: Expense,
-    onDelete: (Long) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = expense.name,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .weight(1f)
-            )
-            TextButton(onClick = { onDelete(expense.id) }) {
-                Text(text = stringResource(R.string.delete))
             }
         }
     }
@@ -143,6 +115,7 @@ private fun ExpenseListContentPreview() {
     AppTheme {
         ExpenseListContent(
             uiState = ExpenseListUiState.Success(sampleExpenses),
+            onAddExpense = {},
             onEditExpense = {},
             onDelete = {}
         )
@@ -155,6 +128,7 @@ private fun EmptyExpenseListContentPreview() {
     AppTheme {
         ExpenseListContent(
             uiState = ExpenseListUiState.Success(listOf()),
+            onAddExpense = {},
             onDelete = {},
             onEditExpense = {}
         )
@@ -167,6 +141,7 @@ private fun ErrorExpenseListContentPreview() {
     AppTheme {
         ExpenseListContent(
             uiState = ExpenseListUiState.Error("Something went wrong!!"),
+            onAddExpense = {},
             onDelete = {},
             onEditExpense = {}
         )
@@ -179,6 +154,7 @@ private fun LoadingExpenseListContentPreview() {
     AppTheme {
         ExpenseListContent(
             uiState = ExpenseListUiState.Loading,
+            onAddExpense = {},
             onDelete = {},
             onEditExpense = {}
         )
