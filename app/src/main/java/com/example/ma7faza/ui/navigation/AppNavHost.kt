@@ -17,10 +17,13 @@ fun AppNavHost(
 ) {
     NavHost(
         navController,
-        startDestination = ExpenseForm()
+        startDestination = ExpenseList
     ) {
         composable<ExpenseList> {
-            ExpenseListScreen()
+            ExpenseListScreen(
+                onAddExpense = { navController.navigate(ExpenseForm()) },
+                onEditExpense = { id -> navController.navigate((ExpenseForm(id))) }
+            )
         }
 
         composable<ExpenseForm> {

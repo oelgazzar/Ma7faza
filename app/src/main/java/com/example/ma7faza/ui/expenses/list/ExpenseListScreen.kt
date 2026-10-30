@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -32,14 +34,29 @@ data object ExpenseList
 
 @Composable
 fun ExpenseListScreen(
+    onAddExpense: () -> Unit,
+    onEditExpense: (Long) -> Unit,
     viewModel: ExpenseListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    ExpenseListContent(
-        uiState,
-        onDelete = viewModel::deleteExpense,
-    )
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onAddExpense,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(text = "Add")
+            }
+        }
+    ) { innerPadding ->
+        ExpenseListContent(
+            uiState,
+            onDelete = viewModel::deleteExpense,
+            modifier = Modifier.padding(innerPadding)
+                .padding(horizontal = 16.dp)
+        )
+    }
 }
 
 @Composable
@@ -76,7 +93,7 @@ private fun ExpenseListContent(
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier
+                    modifier = modifier
                         .fillMaxSize()
                         .padding(16.dp)
                 ) {

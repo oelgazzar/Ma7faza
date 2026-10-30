@@ -6,6 +6,6 @@ import java.util.Locale
 
 
 fun LocalDate.toDisplayString(): String {
-    val dateFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyy", Locale.getDefault())
+    val dateFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy", Locale.getDefault())
     return this.format(dateFormatter)
 }
