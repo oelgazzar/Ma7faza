@@ -22,7 +22,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ma7faza.R
 import com.example.ma7faza.data.sample.sampleExpenses
 import com.example.ma7faza.ui.theme.AppTheme
+import com.example.ma7faza.utils.toDisplayString
 import kotlinx.serialization.Serializable
+import java.time.LocalDate
 
 @Serializable
 data object ExpenseList
@@ -95,18 +97,29 @@ private fun ExpenseListContent(
                     modifier = modifier
                         .fillMaxSize()
                 ) {
-                    items(uiState.expenses, key = { it.id }) { expense ->
-                        ExpenseRow(
-                            expense,
-                            onEdit = onEditExpense,
-                            onDelete,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                    val expenseGroups = groupExpensesByDate(expenses = uiState.expenses)
+                    expenseGroups.forEach { group ->
+                        item(key = group.date) {
+                            ExpenseGroupHeader(group.date)
+                        }
+                        items(group.expenses, key = { it.id }) { expense ->
+                            ExpenseRow(
+                                expense,
+                                onEdit = onEditExpense,
+                                onDelete,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+fun ExpenseGroupHeader(date: LocalDate) {
+    Text(date.toDisplayString())
 }
 
 @Preview
