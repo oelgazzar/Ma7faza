@@ -19,12 +19,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.ma7faza.domain.models.TransactionType
 import com.example.ma7faza.ui.transactions.form.components.AmountField
 import com.example.ma7faza.ui.transactions.form.components.DateField
 import com.example.ma7faza.ui.transactions.form.components.ErrorScreen
@@ -32,6 +34,7 @@ import com.example.ma7faza.ui.transactions.form.components.LoadingScreen
 import com.example.ma7faza.ui.transactions.form.components.NameField
 import com.example.ma7faza.ui.transactions.form.components.NoteField
 import com.example.ma7faza.ui.theme.AppTheme
+import com.example.ma7faza.ui.transactions.form.components.TransactionTypeSelector
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -103,6 +106,13 @@ fun TransactionFormContent(
             .imePadding()
             .verticalScroll(rememberScrollState())
     ) {
+        TransactionTypeSelector(
+            selectedType = formState.type,
+            onTypeSelected = formState::updateType,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
         AmountField(
             formState.amount,
             error = formState.errors.firstOrNull { it.field == "amount" }
@@ -115,11 +125,13 @@ fun TransactionFormContent(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
+
         DateField(formState.date, onDateSelected = formState::updateDate)
         Spacer(modifier = Modifier.height(16.dp))
 
         NoteField(formState.note)
         Spacer(modifier = Modifier.height(32.dp))
+
 
         SaveButton(
             onClick = onSave,

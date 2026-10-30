@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.example.ma7faza.domain.models.Transaction
+import com.example.ma7faza.domain.models.TransactionType
 import com.example.ma7faza.utils.formatAmount
 import java.time.LocalDate
 
@@ -16,12 +17,17 @@ class TransactionFormState(
     amount: String = "",
     note: String? = null,
     date: LocalDate = LocalDate.now(),
+    type: TransactionType = TransactionType.INCOME
 ) {
     val name = TextFieldState(name)
     val amount = TextFieldState(amount)
     val note = TextFieldState(note ?: "")
     var date: LocalDate by mutableStateOf(date)
         private set
+
+    var type: TransactionType by mutableStateOf(type)
+        private set
+
     private var submitted by mutableStateOf(false)
 
     val errors: List<TransactionFormValidationError>
@@ -35,6 +41,10 @@ class TransactionFormState(
         this.date = date
     }
 
+    fun updateType(type: TransactionType) {
+        this.type = type
+    }
+
     fun validate(): Transaction? {
         submitted = true
         return (runValidation() as? TransactionFormValidationResult.Success)?.transaction
@@ -45,7 +55,8 @@ class TransactionFormState(
         name = name.text.toString(),
         amount = amount.text.toString(),
         note = note.text.toString(),
-        date = date
+        date = date,
+        type = type
     )
 
     companion object {
@@ -55,6 +66,7 @@ class TransactionFormState(
             amount = formatAmount(transaction.amountMinor),
             note = transaction.note,
             date = transaction.date,
+            type = transaction.type
         )
     }
 }

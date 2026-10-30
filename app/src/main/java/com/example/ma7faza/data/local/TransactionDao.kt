@@ -14,7 +14,7 @@ interface TransactionDao {
     fun observe(id: Long): Flow<TransactionEntity?>
 
     @Upsert
-    suspend fun upsert(transactions: TransactionEntity)
+    suspend fun upsert(transaction: TransactionEntity)
 
     @Query("DELETE FROM transactions WHERE id = :id")
     suspend fun delete(id: Long)

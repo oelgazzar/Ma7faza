@@ -10,7 +10,8 @@ fun validateTransactionForm(
     name: String,
     amount: String,
     note: String?,
-    date: LocalDate
+    date: LocalDate,
+    type: TransactionType
 ): TransactionFormValidationResult {
     val causes = mutableListOf<TransactionFormValidationError>()
     val parsedAmount = parseAmount(amount)
@@ -41,7 +42,7 @@ fun validateTransactionForm(
             amountMinor = parsedAmount,
             note = note?.trim()?.takeIf { it.isNotBlank() },
             date = date,
-            type = TransactionType.EXPENSE
+            type = type
         )
     )
 }
