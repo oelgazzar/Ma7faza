@@ -41,7 +41,6 @@ class TransactionFormViewModelTest {
         )
     }
 
-
     @Test
     fun `viewModel with empty state not saved`() = runTest {
         viewModel.save()
@@ -59,6 +58,23 @@ class TransactionFormViewModelTest {
         val transaction = transactionRepository.transactions.first()
         assertEquals("Shopping", transaction.name)
         assertEquals(2500L, transaction.amountMinor)
+        assertEquals(TransactionType.EXPENSE, transaction.type)
+    }
+
+    @Test
+    fun `viewModel saves income transaction with selected type`() = runTest {
+        val formState = (viewModel.uiState.value as? TransactionFormUiState.Success)?.formState
+        formState ?: throw AssertionFailedError("formState is null")
+        formState.name.setTextAndPlaceCursorAtEnd("Salary")
+        formState.amount.setTextAndPlaceCursorAtEnd("25000")
+        formState.updateType(TransactionType.INCOME)
+
+        viewModel.save()
+
+        val transaction = transactionRepository.transactions.single()
+        assertEquals("Salary", transaction.name)
+        assertEquals(2_500_000L, transaction.amountMinor)
+        assertEquals(TransactionType.INCOME, transaction.type)
     }
 
     @Test
@@ -71,7 +87,7 @@ class TransactionFormViewModelTest {
             viewModel.save()
             val event = awaitItem()
             assertEquals(TransactionFormUiEvent.OnSaveDone, event)
-            assertEquals(SubmissionState.Idle, viewModel.submissionState.value, )
+            assertEquals(SubmissionState.Idle, viewModel.submissionState.value)
         }
     }
 
@@ -93,7 +109,7 @@ class TransactionFormViewModelTest {
             formState.amount.setTextAndPlaceCursorAtEnd("25")
             viewModel.save()
             assertEquals(TransactionFormUiEvent.OnSaveError, awaitItem())
-            assertEquals(SubmissionState.Idle, viewModel.submissionState.value, )
+            assertEquals(SubmissionState.Idle, viewModel.submissionState.value)
             assertEquals("Shopping", formState.name.text.toString())
             assertEquals("25", formState.amount.text.toString())
         }
