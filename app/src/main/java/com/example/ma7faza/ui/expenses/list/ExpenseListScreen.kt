@@ -1,18 +1,27 @@
 package com.example.ma7faza.ui.expenses.list
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,15 +30,17 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ma7faza.R
 import com.example.ma7faza.data.sample.sampleExpenses
+import com.example.ma7faza.domain.models.Expense
 import com.example.ma7faza.ui.theme.AppTheme
-import com.example.ma7faza.utils.toDisplayString
-import com.example.ma7faza.utils.toRelativeDisplayString
+import com.example.test.add
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import java.time.LocalDate
 
 @Serializable
 data object ExpenseList
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseListScreen(
     onAddExpense: () -> Unit,
@@ -37,15 +48,49 @@ fun ExpenseListScreen(
     viewModel: ExpenseListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackBarState = remember { SnackbarHostState() }
+
+    LaunchedEffect(viewModel) {
+        var job: Job? = null
+        viewModel.events.collect { event ->
+            when(event) {
+                ExpenseListUiEvent.OnDelete -> {
+                    job?.cancel()
+                    job = launch {
+                        snackBarState.showSnackbar(
+                            message = "Expense deleted",
+                            actionLabel = "Undo",
+                            withDismissAction = true
+                        ).run {
+                            when(this) {
+                                SnackbarResult.ActionPerformed -> viewModel.undoDelete()
+                                SnackbarResult.Dismissed -> viewModel.onConfirmDelete()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text("Expenses")
+                }
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddExpense,
                 modifier = Modifier.padding(16.dp)
             ) {
-                Text(text = "Add")
+                Icon(add, null)
             }
+        },
+        snackbarHost = {
+            SnackbarHost(snackBarState)
         }
     ) { innerPadding ->
         ExpenseListContent(
@@ -65,7 +110,7 @@ private fun ExpenseListContent(
     uiState: ExpenseListUiState,
     onAddExpense: () -> Unit,
     onEditExpense: (Long) -> Unit,
-    onDelete: (Long) -> Unit,
+    onDelete: (Expense) -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (uiState) {
@@ -97,6 +142,7 @@ private fun ExpenseListContent(
 
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp),
                     modifier = modifier
                         .fillMaxSize()
                 ) {
@@ -117,15 +163,6 @@ private fun ExpenseListContent(
             }
         }
     }
-}
-
-@Composable
-fun ExpenseGroupHeader(date: LocalDate) {
-    Text(
-        date.toRelativeDisplayString(),
-        style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.padding(vertical = 4.dp)
-    )
 }
 
 @Preview
