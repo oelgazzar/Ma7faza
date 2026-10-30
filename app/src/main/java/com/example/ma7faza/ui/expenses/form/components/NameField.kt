@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.ma7faza.ui.expenses.form.ExpenseFormValidationError
 import com.example.ma7faza.ui.expenses.form.toMessage
-import com.example.test.sell
+import com.example.ma7faza.ui.theme.icons.sell
 
 @Composable
 fun NameField(

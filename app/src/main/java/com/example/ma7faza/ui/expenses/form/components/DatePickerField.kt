@@ -22,8 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import com.example.ma7faza.utils.toDisplayString
-import com.example.test.arrow_forward_ios
-import com.example.test.calendar_today
+import com.example.ma7faza.ui.theme.icons.arrow_forward_ios
+import com.example.ma7faza.ui.theme.icons.calendar_today
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)

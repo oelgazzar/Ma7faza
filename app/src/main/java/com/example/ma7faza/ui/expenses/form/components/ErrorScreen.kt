@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ma7faza.ui.theme.AppTheme
-import com.example.test.sentiment_very_dissatisfied
+import com.example.ma7faza.ui.theme.icons.sentiment_very_dissatisfied
 
 @Composable
 fun ErrorScreen(

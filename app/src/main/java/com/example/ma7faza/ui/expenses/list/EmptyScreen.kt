@@ -6,18 +6,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.ma7faza.R
 import com.example.ma7faza.ui.theme.AppTheme
-import com.example.test.receipt_long
+import com.example.ma7faza.ui.theme.icons.receipt_long
 
 @Composable
 fun EmptyScreen(
@@ -39,17 +41,17 @@ fun EmptyScreen(
                 .size(128.dp)
         )
         Text(
-            "No expenses yet",
+            stringResource(R.string.no_expenses_yet),
             style = MaterialTheme.typography.headlineLarge,
         )
         Text(
-            "Start tracking your spending by adding your first expense.",
+            stringResource(R.string.start_tracking_your_spending_by_adding_your_first_expense),
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .widthIn(max = 320.dp)
         )
-        TextButton(onClick = onAddExpense) {
-            Text("Add expense")
+        Button(onClick = onAddExpense) {
+            Text(stringResource(R.string.add_expense))
         }
     }
 }
