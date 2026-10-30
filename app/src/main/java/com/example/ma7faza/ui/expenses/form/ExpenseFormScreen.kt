@@ -47,7 +47,6 @@ fun ExpenseFormScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val submissionState by viewModel.submissionState.collectAsStateWithLifecycle()
     val snackBarState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(viewModel) {
@@ -72,7 +71,7 @@ fun ExpenseFormScreen(
             }
             ExpenseFormUiState.Error -> {
                 ErrorScreen(
-                    onBack = {}
+                    onBack = navigateBack
                 )
             }
             is ExpenseFormUiState.Success ->

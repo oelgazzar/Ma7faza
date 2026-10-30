@@ -1,5 +1,6 @@
 package com.example.ma7faza.ui.expenses.list
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -52,6 +53,7 @@ fun ExpenseListScreen(
     ) { innerPadding ->
         ExpenseListContent(
             uiState,
+            onEditExpense = onEditExpense,
             onDelete = viewModel::deleteExpense,
             modifier = Modifier.padding(innerPadding)
                 .padding(horizontal = 16.dp)
@@ -62,12 +64,13 @@ fun ExpenseListScreen(
 @Composable
 private fun ExpenseListContent(
     uiState: ExpenseListUiState,
+    onEditExpense: (Long) -> Unit,
     onDelete: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (uiState) {
         is ExpenseListUiState.Loading -> Text(
-            text = stringResource(R.string.loading), modifier = Modifier
+            text = stringResource(R.string.loading), modifier = modifier
                 .fillMaxSize()
                 .wrapContentSize()
         )
@@ -77,7 +80,7 @@ private fun ExpenseListContent(
             Text(
                 text = message ?: stringResource(R.string.unknown_error),
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxSize()
                     .wrapContentSize()
             )
@@ -95,12 +98,12 @@ private fun ExpenseListContent(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = modifier
                         .fillMaxSize()
-                        .padding(16.dp)
                 ) {
                     items(uiState.expenses, key = { it.id }) { expense ->
                         ExpenseRow(
                             expense, onDelete,
                             modifier = Modifier.fillMaxWidth()
+                                .clickable(onClick = { onEditExpense(expense.id) })
                         )
                     }
                 }
@@ -140,6 +143,7 @@ private fun ExpenseListContentPreview() {
     AppTheme {
         ExpenseListContent(
             uiState = ExpenseListUiState.Success(sampleExpenses),
+            onEditExpense = {},
             onDelete = {}
         )
     }
@@ -151,7 +155,8 @@ private fun EmptyExpenseListContentPreview() {
     AppTheme {
         ExpenseListContent(
             uiState = ExpenseListUiState.Success(listOf()),
-            onDelete = {}
+            onDelete = {},
+            onEditExpense = {}
         )
     }
 }
@@ -162,7 +167,8 @@ private fun ErrorExpenseListContentPreview() {
     AppTheme {
         ExpenseListContent(
             uiState = ExpenseListUiState.Error("Something went wrong!!"),
-            onDelete = {}
+            onDelete = {},
+            onEditExpense = {}
         )
     }
 }
@@ -173,7 +179,8 @@ private fun LoadingExpenseListContentPreview() {
     AppTheme {
         ExpenseListContent(
             uiState = ExpenseListUiState.Loading,
-            onDelete = {}
+            onDelete = {},
+            onEditExpense = {}
         )
     }
 }
