@@ -58,7 +58,7 @@ fun TransactionListScreen(
                     job?.cancel()
                     job = launch {
                         snackBarState.showSnackbar(
-                            message = "Expense deleted",
+                            message = "Transaction deleted",
                             actionLabel = "Undo",
                             withDismissAction = true
                         ).run {
@@ -77,7 +77,7 @@ fun TransactionListScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Expenses")
+                    Text("Transactions")
                 }
             )
         },
@@ -95,8 +95,8 @@ fun TransactionListScreen(
     ) { innerPadding ->
         TransactionListContent(
             uiState,
-            onAddExpense = onAddTransaction,
-            onEditExpense = onEditTransaction,
+            onAddTransaction = onAddTransaction,
+            onEditTransaction = onEditTransaction,
             onDelete = viewModel::deleteTransaction,
             modifier = Modifier
                 .padding(innerPadding)
@@ -108,8 +108,8 @@ fun TransactionListScreen(
 @Composable
 private fun TransactionListContent(
     uiState: TransactionListUiState,
-    onAddExpense: () -> Unit,
-    onEditExpense: (Long) -> Unit,
+    onAddTransaction: () -> Unit,
+    onEditTransaction: (Long) -> Unit,
     onDelete: (Transaction) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -134,11 +134,11 @@ private fun TransactionListContent(
         is TransactionListUiState.Success -> {
             if (uiState.transactions.isEmpty()) {
                 EmptyScreen(
-                    onAddTransaction = onAddExpense,
+                    onAddTransaction = onAddTransaction,
                     modifier
                 )
             } else {
-                val expenseGroups = groupTransactionsByDate(transactions = uiState.transactions)
+                val transactionGroups = groupTransactionsByDate(transactions = uiState.transactions)
 
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -146,14 +146,14 @@ private fun TransactionListContent(
                     modifier = modifier
                         .fillMaxSize()
                 ) {
-                    expenseGroups.forEach { group ->
+                    transactionGroups.forEach { group ->
                         item(key = group.date) {
                             TransactionGroupHeader(group.date)
                         }
-                        items(group.transactions, key = { it.id }) { expense ->
+                        items(group.transactions, key = { it.id }) { transaction ->
                             TransactionRow(
-                                expense,
-                                onEdit = onEditExpense,
+                                transaction,
+                                onEdit = onEditTransaction,
                                 onDelete,
                                 modifier = Modifier.fillMaxWidth()
                             )
@@ -171,8 +171,8 @@ private fun TransactionListContentPreview() {
     AppTheme {
         TransactionListContent(
             uiState = TransactionListUiState.Success(sampleTransactions),
-            onAddExpense = {},
-            onEditExpense = {},
+            onAddTransaction = {},
+            onEditTransaction = {},
             onDelete = {}
         )
     }
@@ -184,9 +184,9 @@ private fun EmptyTransactionListContentPreview() {
     AppTheme {
         TransactionListContent(
             uiState = TransactionListUiState.Success(listOf()),
-            onAddExpense = {},
+            onAddTransaction = {},
             onDelete = {},
-            onEditExpense = {}
+            onEditTransaction = {}
         )
     }
 }
@@ -197,9 +197,9 @@ private fun ErrorTransactionListContentPreview() {
     AppTheme {
         TransactionListContent(
             uiState = TransactionListUiState.Error("Something went wrong!!"),
-            onAddExpense = {},
+            onAddTransaction = {},
             onDelete = {},
-            onEditExpense = {}
+            onEditTransaction = {}
         )
     }
 }
@@ -210,9 +210,9 @@ private fun LoadingTransactionListContentPreview() {
     AppTheme {
         TransactionListContent(
             uiState = TransactionListUiState.Loading,
-            onAddExpense = {},
+            onAddTransaction = {},
             onDelete = {},
-            onEditExpense = {}
+            onEditTransaction = {}
         )
     }
 }

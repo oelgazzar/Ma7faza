@@ -38,7 +38,6 @@ class TransactionListViewModel @Inject constructor(
     val events = _events.receiveAsFlow()
 
     fun deleteTransaction(transaction: Transaction) {
-        println("Delete expense")
         viewModelScope.launch {
             transactionRepository.delete(transaction.id)
             println(deletedTransaction)

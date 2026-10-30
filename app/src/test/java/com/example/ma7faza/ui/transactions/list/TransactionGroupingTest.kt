@@ -82,10 +82,10 @@ class TransactionGroupingTest {
 
         val result = groupTransactionsByDate(transactions)
 
-        val groupedExpenses = result.flatMap { it.transactions }
+        val groupedTransactions = result.flatMap { it.transactions }
 
-        assertEquals(transactions.size, groupedExpenses.size)
-        assertEquals(transactions.toSet(), groupedExpenses.toSet())
+        assertEquals(transactions.size, groupedTransactions.size)
+        assertEquals(transactions.toSet(), groupedTransactions.toSet())
     }
 
     @Test
@@ -111,7 +111,7 @@ class TransactionGroupingTest {
         date: LocalDate
     ) = Transaction(
         id = id,
-        name = "Expense $id",
+        name = "Transaction $id",
         amountMinor = 1000,
         date = date,
         type = TransactionType.EXPENSE

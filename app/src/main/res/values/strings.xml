@@ -6,4 +6,5 @@
     <string name="start_tracking_your_spending_by_adding_your_first_transaction">Start tracking your spending by adding your first transaction.</string>
     <string name="add_transaction">Add transaction</string>
     <string name="no_transactions_yet">No transactions yet</string>
+    <string name="failed_to_save_transaction">Failed to save transaction</string>
 </resources>

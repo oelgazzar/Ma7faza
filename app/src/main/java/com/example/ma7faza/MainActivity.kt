@@ -16,15 +16,8 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @Inject
-    lateinit var repository: TransactionRepository
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lifecycleScope.launch {
-            sampleTransactions.forEach {
-                repository.upsert(it)
-            }
-        }
         enableEdgeToEdge()
         setContent {
             AppTheme {

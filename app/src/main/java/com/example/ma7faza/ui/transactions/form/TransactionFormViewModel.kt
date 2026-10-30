@@ -34,8 +34,8 @@ class TransactionFormViewModel @Inject constructor(
     init {
         transactionId?.let { id ->
             viewModelScope.launch {
-                val expense = transactionRepository.observe(id).first()
-                expense?.let {
+                val transaction = transactionRepository.observe(id).first()
+                transaction?.let {
                     _uiState.value = TransactionFormUiState.Success(TransactionFormState.fromTransaction(it))
                 } ?: run {
                     _uiState.value = TransactionFormUiState.Error
@@ -50,11 +50,11 @@ class TransactionFormViewModel @Inject constructor(
         val form = (uiState.value as? TransactionFormUiState.Success)?.formState ?: return
         if (_submissionState.value == SubmissionState.Saving) return
 
-        form.validate()?.let { expense ->
+        form.validate()?.let { transaction ->
             _submissionState.value = SubmissionState.Saving
             viewModelScope.launch {
                 try {
-                    transactionRepository.upsert(expense)
+                    transactionRepository.upsert(transaction)
                     _events.trySend(TransactionFormUiEvent.OnSaveDone)
                 } catch (e: CancellationException) {
                     throw e

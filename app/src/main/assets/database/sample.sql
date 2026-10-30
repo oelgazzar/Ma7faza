@@ -1,0 +1,55 @@
+INSERT INTO transactions (name, amount_minor, note, date, type) VALUES
+
+-- October: income
+('Monthly salary', 2500000, 'October salary', date('now'), 'INCOME'),
+('Freelance project', 650000, 'Mobile app project', date('now', '-8 days'), 'INCOME'),
+('Investment return', 85000, 'Investment payout', date('now', '-18 days'), 'INCOME'),
+
+-- October: expenses
+('Rent', 650000, 'Monthly apartment rent', date('now', '-1 days'), 'EXPENSE'),
+('Groceries', 185000, 'Weekly supermarket shopping', date('now', '-2 days'), 'EXPENSE'),
+('Fuel', 70000, 'Car fuel', date('now', '-3 days'), 'EXPENSE'),
+('Electricity', 95000, 'Monthly electricity bill', date('now', '-4 days'), 'EXPENSE'),
+('Internet', 45000, 'Home internet subscription', date('now', '-5 days'), 'EXPENSE'),
+('Restaurant', 120000, 'Dinner with friends', date('now', '-6 days'), 'EXPENSE'),
+('Coffee', 25000, 'Coffee shop', date('now', '-7 days'), 'EXPENSE'),
+('Pharmacy', 68000, 'Medicine and supplies', date('now', '-9 days'), 'EXPENSE'),
+('Mobile recharge', 30000, 'Phone credit', date('now', '-10 days'), 'EXPENSE'),
+('Car maintenance', 220000, 'Oil change and maintenance', date('now', '-12 days'), 'EXPENSE'),
+('Groceries', 145000, 'Supermarket', date('now', '-14 days'), 'EXPENSE'),
+('Streaming subscription', 25000, 'Monthly subscription', date('now', '-15 days'), 'EXPENSE'),
+('Clothes', 180000, 'New clothes', date('now', '-17 days'), 'EXPENSE'),
+('Transportation', 35000, 'Taxi and public transport', date('now', '-19 days'), 'EXPENSE'),
+('Water bill', 18000, 'Monthly water bill', date('now', '-21 days'), 'EXPENSE'),
+('Restaurant', 95000, 'Lunch', date('now', '-23 days'), 'EXPENSE'),
+('Groceries', 160000, 'Weekly shopping', date('now', '-25 days'), 'EXPENSE'),
+('Home supplies', 75000, 'Cleaning supplies', date('now', '-27 days'), 'EXPENSE'),
+
+-- September
+('Monthly salary', 2500000, 'September salary', date('now', '-31 days'), 'INCOME'),
+('Freelance work', 400000, 'Website development', date('now', '-40 days'), 'INCOME'),
+('Gift', 150000, 'Birthday gift', date('now', '-45 days'), 'INCOME'),
+('Rent', 650000, 'Monthly apartment rent', date('now', '-32 days'), 'EXPENSE'),
+('Groceries', 210000, 'Supermarket shopping', date('now', '-34 days'), 'EXPENSE'),
+('Fuel', 65000, 'Car fuel', date('now', '-36 days'), 'EXPENSE'),
+('Electricity', 110000, 'Electricity bill', date('now', '-38 days'), 'EXPENSE'),
+('Internet', 45000, 'Internet subscription', date('now', '-39 days'), 'EXPENSE'),
+('Restaurant', 135000, 'Family dinner', date('now', '-42 days'), 'EXPENSE'),
+('Medical checkup', 180000, 'Clinic visit', date('now', '-47 days'), 'EXPENSE'),
+('Groceries', 175000, 'Weekly shopping', date('now', '-50 days'), 'EXPENSE'),
+('Clothes', 250000, 'Shoes and clothes', date('now', '-55 days'), 'EXPENSE'),
+('Transportation', 42000, 'Transportation', date('now', '-58 days'), 'EXPENSE'),
+
+-- August
+('Monthly salary', 2500000, 'August salary', date('now', '-62 days'), 'INCOME'),
+('Freelance project', 300000, 'Small freelance task', date('now', '-70 days'), 'INCOME'),
+('Rent', 650000, 'Monthly apartment rent', date('now', '-63 days'), 'EXPENSE'),
+('Groceries', 195000, 'Supermarket shopping', date('now', '-65 days'), 'EXPENSE'),
+('Fuel', 80000, 'Car fuel', date('now', '-67 days'), 'EXPENSE'),
+('Electricity', 88000, 'Electricity bill', date('now', '-69 days'), 'EXPENSE'),
+('Internet', 45000, 'Internet subscription', date('now', '-70 days'), 'EXPENSE'),
+('Restaurant', 110000, 'Dinner', date('now', '-74 days'), 'EXPENSE'),
+('Car repair', 350000, 'Unexpected repair', date('now', '-78 days'), 'EXPENSE'),
+('Groceries', 155000, 'Weekly shopping', date('now', '-82 days'), 'EXPENSE'),
+('Books', 95000, 'Books and learning materials', date('now', '-87 days'), 'EXPENSE'),
+('Transportation', 38000, 'Transportation', date('now', '-90 days'), 'EXPENSE');

@@ -6,10 +6,10 @@ import java.time.LocalDate
 fun groupTransactionsByDate(transactions: List<Transaction>): List<TransactionGroup> {
     return transactions
         .groupBy { it.date }
-        .map { (date, expenses) ->
+        .map { (date, transactions) ->
             TransactionGroup(
                 date = date,
-                transactions = expenses
+                transactions = transactions
             )
         }
         .sortedByDescending { it.date }

@@ -38,13 +38,12 @@ fun TransactionRow(
         ) {
                 Text(
                     text = transaction.name,
-                    style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f)
                 )
 
                 Text(
                     text = formatCurrency(transaction.amountMinor),
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleMedium
                 )
 
             IconButton(

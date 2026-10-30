@@ -2,6 +2,9 @@ package com.example.ma7faza.di
 
 import android.content.Context
 import androidx.room3.Room
+import androidx.room3.RoomDatabase
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
 import com.example.ma7faza.data.local.AppDatabase
 import dagger.Module
 import dagger.Provides
@@ -19,6 +22,17 @@ object DatabaseModule {
         AppDatabase::class.java,
         "app_database"
     )
+        .addCallback(
+            object: RoomDatabase.Callback() {
+                override suspend fun onCreate(connection: SQLiteConnection) {
+                    super.onCreate(connection)
+
+                    context.assets.open("database/sample.sql").use {
+                        connection.execSQL(it.bufferedReader().readText())
+                    }
+                }
+            }
+        )
         .fallbackToDestructiveMigration(true)
         .build()
 

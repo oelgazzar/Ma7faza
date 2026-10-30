@@ -22,11 +22,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.ma7faza.domain.models.TransactionType
+import com.example.ma7faza.R
 import com.example.ma7faza.ui.transactions.form.components.AmountField
 import com.example.ma7faza.ui.transactions.form.components.DateField
 import com.example.ma7faza.ui.transactions.form.components.ErrorScreen
@@ -49,6 +50,7 @@ fun TransactionFormScreen(
     val submissionState by viewModel.submissionState.collectAsStateWithLifecycle()
     val snackBarState = remember { SnackbarHostState() }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val saveFailureErrorMessage = stringResource(R.string.failed_to_save_transaction)
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
@@ -57,7 +59,7 @@ fun TransactionFormScreen(
                     navigateBack()
                 }
                 TransactionFormUiEvent.OnSaveError -> {
-                        snackBarState.showSnackbar("Failed to save expense")
+                        snackBarState.showSnackbar(saveFailureErrorMessage)
                 }
             }
         }
