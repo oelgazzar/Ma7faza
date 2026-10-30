@@ -38,7 +38,7 @@ fun validateExpenseForm(
             id = id,
             name = name.trim(),
             amountMinor = parsedAmount!!,
-            note = note?.takeIf { it.isNotBlank() },
+            note = note?.trim().takeIf { it.isNotBlank() },
             date = date
         )
     )
