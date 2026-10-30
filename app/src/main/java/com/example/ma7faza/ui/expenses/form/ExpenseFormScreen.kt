@@ -52,10 +52,16 @@ fun ExpenseFormContent(
     Column(
         modifier = modifier
     ) {
-        AmountField(formState.amount)
+        AmountField(
+            formState.amount,
+            error = formState.errors.firstOrNull { it.field == "amount" }
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
-        NameField(formState.name)
+        NameField(
+            formState.name,
+            error = formState.errors.firstOrNull { it.field == "name" }
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         DateField(formState.date, onDateSelected = formState::updateDate)
@@ -64,19 +70,24 @@ fun ExpenseFormContent(
         NoteField(formState.note)
         Spacer(modifier = Modifier.height(32.dp))
 
-        SaveButton(onClick = onSave, isSaving = submissionState == SubmissionState.Saving)
+        SaveButton(
+            onClick = onSave,
+            isSaving = submissionState == SubmissionState.Saving,
+            enabled = formState.errors.isEmpty() && submissionState != SubmissionState.Saving
+        )
     }
 }
 
 @Composable
 fun SaveButton(
     onClick: () -> Unit,
+    enabled: Boolean = true,
     isSaving: Boolean = false
 ) {
     Button(
         onClick = onClick,
         shape = MaterialTheme.shapes.large,
-        enabled = !isSaving,
+        enabled = enabled,
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
@@ -95,6 +106,19 @@ private fun IdleExpenseFormContentPrev() {
     AppTheme {
         ExpenseFormContent(
             formState = ExpenseFormState(),
+            onSave = {},
+            submissionState = SubmissionState.Idle,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ErrorIdleExpenseFormContentPrev() {
+    AppTheme {
+        ExpenseFormContent(
+            formState = ExpenseFormState().apply { validate() },
             onSave = {},
             submissionState = SubmissionState.Idle,
             modifier = Modifier.padding(16.dp)

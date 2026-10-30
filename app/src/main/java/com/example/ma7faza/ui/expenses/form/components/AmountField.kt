@@ -14,13 +14,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.ma7faza.ui.expenses.form.ExpenseFormValidationError
+import com.example.ma7faza.ui.expenses.form.toMessage
 import com.example.test.attach_money
 
 @Composable
 fun AmountField(
     state: TextFieldState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    error: ExpenseFormValidationError? = null
 ) {
     Card(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
@@ -39,8 +43,17 @@ fun AmountField(
                 state = state,
                 leadingIcon = attach_money,
                 placeholder = "0.00",
-                textStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                textStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                keyboardType = KeyboardType.Decimal
             )
+            Spacer(modifier = Modifier.height(4.dp))
+            error?.let {
+                Text(
+                    text = error.toMessage(),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
 }

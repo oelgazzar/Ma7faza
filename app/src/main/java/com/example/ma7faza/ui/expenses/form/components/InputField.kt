@@ -1,6 +1,7 @@
 package com.example.ma7faza.ui.expenses.form.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
 
 @Composable
 fun InputField(
@@ -25,6 +27,7 @@ fun InputField(
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
     textStyle: TextStyle = LocalTextStyle.current,
+    keyboardType: KeyboardType = KeyboardType.Text,
     readOnly: Boolean = false
 ) {
     OutlinedTextField(
@@ -36,8 +39,8 @@ fun InputField(
         shape = MaterialTheme.shapes.large,
         colors = OutlinedTextFieldDefaults.colors(
             unfocusedBorderColor = Color.LightGray,
-            unfocusedContainerColor = Color.White,
-            focusedContainerColor = Color.White
+            unfocusedContainerColor = MaterialTheme.colorScheme.background,
+            focusedContainerColor = MaterialTheme.colorScheme.background
         ),
         leadingIcon = if (leadingIcon == null) null else {
             {
@@ -54,6 +57,7 @@ fun InputField(
         },
         textStyle = textStyle,
         readOnly = readOnly,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         modifier = modifier
             .fillMaxWidth()
     )

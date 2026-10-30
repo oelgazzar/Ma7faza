@@ -3,6 +3,8 @@ package com.example.ma7faza.ui.expenses.form.components
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -11,6 +13,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.getSelectedDate
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import com.example.ma7faza.utils.toDisplayString
 import com.example.test.arrow_forward_ios
 import com.example.test.calendar_today
 import java.time.LocalDate
@@ -30,10 +34,15 @@ fun DatePickerField(
 ) {
     var showDatePickerDialog by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(selectedDate)
+    val state = rememberTextFieldState(selectedDate.toDisplayString())
+
+    LaunchedEffect(selectedDate) {
+        state.setTextAndPlaceCursorAtEnd(selectedDate.toDisplayString())
+    }
 
     InputField(
+        state = state,
         leadingIcon = calendar_today,
-        placeholder = "Select date",
         trailingIcon = arrow_forward_ios,
         readOnly = true,
         modifier = Modifier

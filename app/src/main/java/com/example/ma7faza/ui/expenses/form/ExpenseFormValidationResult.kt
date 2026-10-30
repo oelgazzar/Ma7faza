@@ -13,3 +13,18 @@ enum class ExpenseFormValidationError(val field: String) {
     InvalidAmount("amount"),
     ZeroAmount("amount"),
 }
+
+fun ExpenseFormValidationError.toMessage(): String =
+    when (this) {
+        ExpenseFormValidationError.EmptyName ->
+            "Title is required"
+
+        ExpenseFormValidationError.EmptyAmount ->
+            "Amount is required"
+
+        ExpenseFormValidationError.InvalidAmount ->
+            "Enter a valid amount"
+
+        ExpenseFormValidationError.ZeroAmount ->
+            "Amount must be greater than zero"
+    }

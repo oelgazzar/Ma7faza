@@ -9,12 +9,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.ma7faza.ui.expenses.form.ExpenseFormValidationError
+import com.example.ma7faza.ui.expenses.form.toMessage
 import com.example.test.sell
 
 @Composable
 fun NameField(
     state: TextFieldState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    error: ExpenseFormValidationError? = null,
 ) {
     Column(
         modifier = modifier
@@ -30,5 +33,13 @@ fun NameField(
             leadingIcon = sell,
             placeholder = "e.g. Launch at Cafe"
         )
+        Spacer(modifier = Modifier.height(4.dp))
+        error?.let {
+            Text(
+                text = error.toMessage(),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     }
 }
