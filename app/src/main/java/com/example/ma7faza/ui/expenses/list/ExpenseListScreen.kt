@@ -1,0 +1,158 @@
+package com.example.ma7faza.ui.expenses.list
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.ma7faza.R
+import com.example.ma7faza.data.sample.sampleExpenses
+import com.example.ma7faza.domain.models.Expense
+import com.example.ma7faza.ui.theme.AppTheme
+
+@Composable
+fun ExpenseListScreen(
+    viewModel: ExpenseListViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    ExpenseListContent(
+        uiState,
+        onDelete = viewModel::deleteExpense,
+    )
+}
+
+@Composable
+private fun ExpenseListContent(
+    uiState: ExpenseListUiState,
+    onDelete: (Long) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    when (uiState) {
+        is ExpenseListUiState.Loading -> Text(
+            text = stringResource(R.string.loading), modifier = Modifier
+                .fillMaxSize()
+                .wrapContentSize()
+        )
+
+        is ExpenseListUiState.Error -> {
+            val message = uiState.message
+            Text(
+                text = message ?: stringResource(R.string.unknown_error),
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize()
+            )
+        }
+
+        is ExpenseListUiState.Success -> {
+            if (uiState.expenses.isEmpty()) {
+                Text(
+                    "No expenses", modifier = Modifier
+                        .fillMaxSize()
+                        .wrapContentSize()
+                )
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    items(uiState.expenses, key = { it.id }) { expense ->
+                        ExpenseRow(
+                            expense, onDelete,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExpenseRow(
+    expense: Expense,
+    onDelete: (Long) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = expense.name,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .weight(1f)
+            )
+            TextButton(onClick = { onDelete(expense.id) }) {
+                Text(text = stringResource(R.string.delete))
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ExpenseListContentPreview() {
+    AppTheme {
+        ExpenseListContent(
+            uiState = ExpenseListUiState.Success(sampleExpenses),
+            onDelete = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun EmptyExpenseListContentPreview() {
+    AppTheme {
+        ExpenseListContent(
+            uiState = ExpenseListUiState.Success(listOf()),
+            onDelete = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ErrorExpenseListContentPreview() {
+    AppTheme {
+        ExpenseListContent(
+            uiState = ExpenseListUiState.Error("Something went wrong!!"),
+            onDelete = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun LoadingExpenseListContentPreview() {
+    AppTheme {
+        ExpenseListContent(
+            uiState = ExpenseListUiState.Loading,
+            onDelete = {}
+        )
+    }
+}
