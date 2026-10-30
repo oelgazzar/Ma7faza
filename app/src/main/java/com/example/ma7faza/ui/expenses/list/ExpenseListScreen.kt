@@ -23,6 +23,7 @@ import com.example.ma7faza.R
 import com.example.ma7faza.data.sample.sampleExpenses
 import com.example.ma7faza.ui.theme.AppTheme
 import com.example.ma7faza.utils.toDisplayString
+import com.example.ma7faza.utils.toRelativeDisplayString
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
 
@@ -92,12 +93,13 @@ private fun ExpenseListContent(
                     modifier
                 )
             } else {
+                val expenseGroups = groupExpensesByDate(expenses = uiState.expenses)
+
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = modifier
                         .fillMaxSize()
                 ) {
-                    val expenseGroups = groupExpensesByDate(expenses = uiState.expenses)
                     expenseGroups.forEach { group ->
                         item(key = group.date) {
                             ExpenseGroupHeader(group.date)
@@ -119,7 +121,11 @@ private fun ExpenseListContent(
 
 @Composable
 fun ExpenseGroupHeader(date: LocalDate) {
-    Text(date.toDisplayString())
+    Text(
+        date.toRelativeDisplayString(),
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.padding(vertical = 4.dp)
+    )
 }
 
 @Preview
