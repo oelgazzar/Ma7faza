@@ -3,6 +3,7 @@ package com.example.ma7faza.ui.expenses.form
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.example.ma7faza.domain.models.Expense
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
 import java.time.LocalDate

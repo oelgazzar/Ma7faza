@@ -53,4 +53,11 @@ class MoneyTest {
         val result = parseAmount(amount)
         assertEquals(1250L, result)
     }
+
+    @Test
+    fun `format then parse returns the original`() {
+        listOf(0L, 1L, 99L, 100L, 101L, 1999L, Long.MAX_VALUE).forEach { value ->
+            assertEquals("value: $value", value, parseAmount(formatAmount(value)))
+        }
+    }
 }

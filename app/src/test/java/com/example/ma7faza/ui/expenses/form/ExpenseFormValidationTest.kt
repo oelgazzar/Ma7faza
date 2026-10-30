@@ -1,7 +1,11 @@
 package com.example.ma7faza.ui.expenses.form
 
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.example.ma7faza.domain.models.Expense
 import junit.framework.TestCase.assertEquals
+import org.junit.Assert
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Test
 import java.time.LocalDate
 
@@ -203,6 +207,41 @@ class ExpenseFormValidationTest {
 
                 )
             ), result
+        )
+    }
+
+
+    @Test
+    fun `passing name and note with white spaces return trimmed version`() {
+        val result = validateExpenseForm(
+            id = 1,
+            name = " hi ",
+            amount = "5",
+            note = " welcome  ",
+            date = LocalDate.of(2026, 10, 29)
+        )
+        assertEquals(
+            ExpenseFormValidationResult.Success(
+                Expense(id = 1, name = "hi", amountMinor = 500, note = "welcome", date = LocalDate.of(2026, 10, 29))
+            ),
+            result
+        )
+    }
+
+    @Test
+    fun `passing note with only white spaces returns null`() {
+        val result = validateExpenseForm(
+            id = 1,
+            name = "hi",
+            amount = "5",
+            note = "      ",
+            date = LocalDate.of(2026, 10, 29)
+        )
+        assertEquals(
+            ExpenseFormValidationResult.Success(
+                Expense(id = 1, name = "hi", amountMinor = 500, note = null, date = LocalDate.of(2026, 10, 29))
+            ),
+            result
         )
     }
 }

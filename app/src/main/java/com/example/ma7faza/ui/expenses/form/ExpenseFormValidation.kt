@@ -20,14 +20,14 @@ fun validateExpenseForm(
 
     if (amount.isBlank()) {
         causes.add(ExpenseFormValidationError.EmptyAmount)
-    }
-    else if (parsedAmount == null) {
-        causes.add(ExpenseFormValidationError.InvalidAmount)
     } else if (parsedAmount == 0L) {
         causes.add(ExpenseFormValidationError.ZeroAmount)
     }
+    else if (parsedAmount == null) {
+        causes.add(ExpenseFormValidationError.InvalidAmount)
+    }
 
-    if (causes.isNotEmpty()) {
+    if (causes.isNotEmpty() || parsedAmount == null) {
         return ExpenseFormValidationResult.Error(
             causes = causes
         )
@@ -37,7 +37,7 @@ fun validateExpenseForm(
         Expense(
             id = id,
             name = name.trim(),
-            amountMinor = parsedAmount!!,
+            amountMinor = parsedAmount,
             note = note?.trim()?.takeIf { it.isNotBlank() },
             date = date
         )
