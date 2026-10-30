@@ -25,6 +25,10 @@ import com.example.ma7faza.R
 import com.example.ma7faza.data.sample.sampleExpenses
 import com.example.ma7faza.domain.models.Expense
 import com.example.ma7faza.ui.theme.AppTheme
+import kotlinx.serialization.Serializable
+
+@Serializable
+data object ExpenseList
 
 @Composable
 fun ExpenseListScreen(

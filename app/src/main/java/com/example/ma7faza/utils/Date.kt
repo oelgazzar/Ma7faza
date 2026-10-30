@@ -2,7 +2,10 @@ package com.example.ma7faza.utils
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
-private val dateFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyy")
 
-fun LocalDate.toDisplayString(): String = this.format(dateFormatter)
+fun LocalDate.toDisplayString(): String {
+    val dateFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyy", Locale.getDefault())
+    return this.format(dateFormatter)
+}

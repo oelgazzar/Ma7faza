@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import com.example.ma7faza.ui.expenses.form.ExpenseFormScreen
+import com.example.ma7faza.ui.navigation.AppNavHost
 import com.example.ma7faza.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,6 +25,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App() {
-    ExpenseFormScreen()
+    AppNavHost()
 }
 

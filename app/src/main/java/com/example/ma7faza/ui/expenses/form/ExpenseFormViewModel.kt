@@ -13,16 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 import javax.inject.Inject
-
-@Serializable
-data class ExpenseForm(val id: Long? = null)
-
-sealed interface SubmissionState {
-    data object Idle : SubmissionState
-    data object Saving: SubmissionState
-}
 
 @HiltViewModel
 class ExpenseFormViewModel @Inject constructor(
@@ -30,7 +21,8 @@ class ExpenseFormViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val expenseId = savedStateHandle.toRoute<ExpenseForm>().id
-    private val _uiState: MutableStateFlow<ExpenseFormUiState> = MutableStateFlow(ExpenseFormUiState.Loading)
+    private val _uiState: MutableStateFlow<ExpenseFormUiState> =
+        MutableStateFlow(ExpenseFormUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
     private val _submissionState = MutableStateFlow<SubmissionState>(SubmissionState.Idle)
@@ -45,11 +37,11 @@ class ExpenseFormViewModel @Inject constructor(
                 val expense = expenseRepository.observe(id).first()
                 expense?.let {
                     _uiState.value = ExpenseFormUiState.Success(ExpenseFormState.fromExpense(it))
-                }?: run {
+                } ?: run {
                     _uiState.value = ExpenseFormUiState.Error
                 }
             }
-        }?:run {
+        } ?: run {
             _uiState.value = ExpenseFormUiState.Success(ExpenseFormState())
         }
     }
@@ -66,7 +58,7 @@ class ExpenseFormViewModel @Inject constructor(
                     _events.trySend(ExpenseFormUiEvent.OnSaveDone)
                 } catch (e: CancellationException) {
                     throw e
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     _events.trySend(ExpenseFormUiEvent.OnSaveError)
                 } finally {
                     _submissionState.value = SubmissionState.Idle
