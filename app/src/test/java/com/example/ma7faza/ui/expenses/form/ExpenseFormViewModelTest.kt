@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -69,6 +70,7 @@ class ExpenseFormViewModelTest {
             viewModel.save()
             val event = awaitItem()
             assertEquals(ExpenseFormUiEvent.OnSaveDone, event)
+            assertEquals(SubmissionState.Idle, viewModel.submissionState.value, )
         }
     }
 
@@ -77,6 +79,22 @@ class ExpenseFormViewModelTest {
         viewModel.events.test {
             viewModel.save()
             expectNoEvents()
+        }
+    }
+
+    @Test
+    fun `viewModel send error event when repository throw error`() = runTest {
+        expenseRepository.shouldThrowOnUpsert = true
+        viewModel.events.test {
+            val formState = (viewModel.uiState.value as? ExpenseFormUiState.Success)?.formState
+            formState ?: throw AssertionFailedError("formState is null")
+            formState.name.setTextAndPlaceCursorAtEnd("Shopping")
+            formState.amount.setTextAndPlaceCursorAtEnd("25")
+            viewModel.save()
+            assertEquals(ExpenseFormUiEvent.OnSaveError, awaitItem())
+            assertEquals(SubmissionState.Idle, viewModel.submissionState.value, )
+            assertEquals("Shopping", formState.name.text.toString())
+            assertEquals("25", formState.amount.text.toString())
         }
     }
 
@@ -106,7 +124,7 @@ class ExpenseFormViewModelTest {
             expenseRepository,
             savedStateHandle = SavedStateHandle(mapOf("id" to 1L))
         )
-        assertEquals(ExpenseFormUiState.Error(ExpenseFormError.ExpenseNotFound), viewModel.uiState.value)
+        assertEquals(ExpenseFormUiState.Error, viewModel.uiState.value)
     }
 
     @Test
@@ -131,6 +149,24 @@ class ExpenseFormViewModelTest {
         assertEquals(1, expenseRepository.expenses.size)
         val expense = expenseRepository.expenses.first()
         assertEquals(2500L, expense.amountMinor)
+    }
+
+    @Test
+    fun `viewModel save calls upsert once while saving`() = runTest {
+        expenseRepository.shouldSuspenOnUpsert = true
+        val formState = (viewModel.uiState.value as? ExpenseFormUiState.Success)?.formState
+        formState ?: throw AssertionFailedError("formState is null")
+        formState.name.setTextAndPlaceCursorAtEnd("Shopping")
+        formState.amount.setTextAndPlaceCursorAtEnd("25")
+        viewModel.save()
+        viewModel.save()
+        assertEquals(1, expenseRepository.upsertCalls)
+        assertEquals(SubmissionState.Saving, viewModel.submissionState.value)
+
+        expenseRepository.upsertGate.complete(Unit)
+        advanceUntilIdle()
+
+        assertEquals(SubmissionState.Idle, viewModel.submissionState.value)
     }
 }
 

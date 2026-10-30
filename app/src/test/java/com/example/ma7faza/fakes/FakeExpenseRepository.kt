@@ -2,11 +2,16 @@ package com.example.ma7faza.fakes
 
 import com.example.ma7faza.domain.models.Expense
 import com.example.ma7faza.domain.repository.ExpenseRepository
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class FakeExpenseRepository : ExpenseRepository {
     var expenses = mutableListOf<Expense>()
+    var shouldThrowOnUpsert = false
+    var shouldSuspenOnUpsert = false
+    val upsertGate = CompletableDeferred<Unit>()
+    var upsertCalls = 0
 
     override fun observeAll(): Flow<List<Expense>> {
         TODO("Not yet implemented")
@@ -17,6 +22,16 @@ class FakeExpenseRepository : ExpenseRepository {
     }
 
     override suspend fun upsert(expense: Expense) {
+        upsertCalls++
+
+        if (shouldThrowOnUpsert) {
+            throw Exception("Upsert failed")
+        }
+        if (!shouldSuspenOnUpsert) {
+            upsertGate.complete(Unit)
+        }
+        upsertGate.await()
+
         val index = expenses.indexOfFirst { it.id == expense.id }
 
         if (index == -1) {
