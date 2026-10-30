@@ -152,6 +152,7 @@ class TransactionFormViewModelTest {
         assertEquals(2500L, transaction.amountMinor)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `viewModel save calls upsert once while saving`() = runTest {
         transactionRepository.shouldSuspenOnUpsert = true

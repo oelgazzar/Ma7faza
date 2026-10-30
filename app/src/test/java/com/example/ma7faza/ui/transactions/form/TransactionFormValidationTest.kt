@@ -14,7 +14,8 @@ class TransactionFormValidationTest {
             name = "Lunch",
             amount = "19.99",
             note = null,
-            date = LocalDate.of(2026, 10, 29)
+            date = LocalDate.of(2026, 10, 29),
+            type = TransactionType.EXPENSE
         )
 
         assertEquals(
@@ -37,7 +38,8 @@ class TransactionFormValidationTest {
             name = "",
             amount = "19.99",
             note = null,
-            date = LocalDate.of(2026, 10, 29)
+            date = LocalDate.of(2026, 10, 29),
+            type = TransactionType.EXPENSE
         )
 
         assertEquals(
@@ -52,7 +54,8 @@ class TransactionFormValidationTest {
             name = "    ",
             amount = "19.99",
             note = null,
-            date = LocalDate.of(2026, 10, 29)
+            date = LocalDate.of(2026, 10, 29),
+            type = TransactionType.EXPENSE
         )
 
         assertEquals(
@@ -67,7 +70,8 @@ class TransactionFormValidationTest {
             name = "Lunch",
             amount = "",
             note = null,
-            date = LocalDate.of(2026, 10, 29)
+            date = LocalDate.of(2026, 10, 29),
+            type = TransactionType.EXPENSE
         )
 
         assertEquals(
@@ -86,7 +90,8 @@ class TransactionFormValidationTest {
             name = "Lunch",
             amount = "abc",
             note = null,
-            date = LocalDate.of(2026, 10, 29)
+            date = LocalDate.of(2026, 10, 29),
+            type = TransactionType.EXPENSE
         )
 
         assertEquals(
@@ -105,7 +110,8 @@ class TransactionFormValidationTest {
             name = "Lunch",
             amount = "5.999",
             note = null,
-            date = LocalDate.of(2026, 10, 29)
+            date = LocalDate.of(2026, 10, 29),
+            type = TransactionType.EXPENSE
         )
 
         assertEquals(
@@ -124,7 +130,8 @@ class TransactionFormValidationTest {
             name = "Lunch",
             amount = "-3",
             note = null,
-            date = LocalDate.of(2026, 10, 29)
+            date = LocalDate.of(2026, 10, 29),
+            type = TransactionType.EXPENSE
         )
 
         assertEquals(
@@ -143,7 +150,8 @@ class TransactionFormValidationTest {
             name = "Lunch",
             amount = "0",
             note = null,
-            date = LocalDate.of(2026, 10, 29)
+            date = LocalDate.of(2026, 10, 29),
+            type = TransactionType.EXPENSE
         )
 
         assertEquals(
@@ -158,7 +166,8 @@ class TransactionFormValidationTest {
             name = "Lunch",
             amount = "-0",
             note = null,
-            date = LocalDate.of(2026, 10, 29)
+            date = LocalDate.of(2026, 10, 29),
+            type = TransactionType.EXPENSE
         )
 
         assertEquals(
@@ -173,7 +182,8 @@ class TransactionFormValidationTest {
             name = "",
             amount = "abc",
             note = null,
-            date = LocalDate.of(2026, 10, 29)
+            date = LocalDate.of(2026, 10, 29),
+            type = TransactionType.EXPENSE
         )
 
         assertEquals(
@@ -193,7 +203,8 @@ class TransactionFormValidationTest {
             name = "",
             amount = "0",
             note = null,
-            date = LocalDate.of(2026, 10, 29)
+            date = LocalDate.of(2026, 10, 29),
+            type = TransactionType.EXPENSE
         )
 
         assertEquals(
@@ -215,7 +226,8 @@ class TransactionFormValidationTest {
             name = " hi ",
             amount = "5",
             note = " welcome  ",
-            date = LocalDate.of(2026, 10, 29)
+            date = LocalDate.of(2026, 10, 29),
+            type = TransactionType.EXPENSE
         )
         assertEquals(
             TransactionFormValidationResult.Success(
@@ -239,7 +251,8 @@ class TransactionFormValidationTest {
             name = "hi",
             amount = "5",
             note = "      ",
-            date = LocalDate.of(2026, 10, 29)
+            date = LocalDate.of(2026, 10, 29),
+            type = TransactionType.EXPENSE
         )
         assertEquals(
             TransactionFormValidationResult.Success(

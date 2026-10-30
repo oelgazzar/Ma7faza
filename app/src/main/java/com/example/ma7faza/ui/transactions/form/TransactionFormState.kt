@@ -17,7 +17,7 @@ class TransactionFormState(
     amount: String = "",
     note: String? = null,
     date: LocalDate = LocalDate.now(),
-    type: TransactionType = TransactionType.INCOME
+    type: TransactionType = TransactionType.EXPENSE
 ) {
     val name = TextFieldState(name)
     val amount = TextFieldState(amount)
