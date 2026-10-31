@@ -18,7 +18,7 @@ fun formatAmount(amount: Long): String {
 
 fun formatCurrency(amountMinor: Long): String {
     val numberFormat = NumberFormat.getNumberInstance(Locale.getDefault()).apply {
-        minimumFractionDigits = 2
+        minimumFractionDigits = 0
         maximumFractionDigits = 2
     }
 

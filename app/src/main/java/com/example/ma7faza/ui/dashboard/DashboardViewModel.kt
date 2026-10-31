@@ -6,6 +6,7 @@ import com.example.ma7faza.domain.models.TransactionType
 import com.example.ma7faza.domain.repository.CategoryRepository
 import com.example.ma7faza.domain.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
@@ -30,6 +31,7 @@ class DashboardViewModel @Inject constructor(
         (expenses + incomes).associateBy { it.id }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val uiState = selectedPeriod.flatMapLatest { period ->
         val range = period.toDateRange(LocalDate.now())
         combine(

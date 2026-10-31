@@ -1,24 +1,38 @@
 package com.example.ma7faza.ui.dashboard
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.ma7faza.domain.models.Category
-import com.example.ma7faza.domain.models.CategoryExpense
-import com.example.ma7faza.ui.categories.color
-import com.example.ma7faza.ui.categories.displayName
+import com.example.ma7faza.R
 import com.example.ma7faza.ui.transactions.components.TransactionItem
 import com.example.ma7faza.utils.formatCurrency
 import com.example.test.add
@@ -36,13 +50,18 @@ fun DashboardScreen(
     }) { padding ->
         when (val current = state) {
             DashboardUiState.Loading -> Box(
-                Modifier.fillMaxSize().padding(padding),
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
             }
+
             is DashboardUiState.Error -> Box(
-                Modifier.fillMaxSize().padding(padding),
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -50,6 +69,7 @@ fun DashboardScreen(
                     color = MaterialTheme.colorScheme.error
                 )
             }
+
             is DashboardUiState.Success -> DashboardContent(
                 current,
                 viewModel::selectPeriod,
@@ -76,7 +96,7 @@ private fun DashboardContent(
     ) {
         item {
             Text(
-                "Ma7faza",
+                stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -169,94 +189,3 @@ private fun DashboardContent(
     }
 }
 
-@Composable
-private fun CategoryExpenseSection(
-    expenses: List<CategoryExpense>,
-    categories: Map<String, Category>,
-    totalExpensesMinor: Long,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text("Expenses by category", style = MaterialTheme.typography.titleLarge)
-
-        if (expenses.isEmpty() || totalExpensesMinor <= 0L) {
-            Text(
-                "No expenses in this period",
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        } else {
-            expenses.forEach { expense ->
-                val category = categories[expense.categoryId]
-                val fraction = (
-                    expense.totalMinor.toFloat() / totalExpensesMinor
-                ).coerceIn(0f, 1f)
-
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            category?.displayName() ?: "Unknown category",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            formatCurrency(expense.totalMinor),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(8.dp)
-                            .background(
-                                MaterialTheme.colorScheme.surfaceContainerHighest,
-                                CircleShape
-                            )
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth(fraction)
-                                .fillMaxHeight()
-                                .background(
-                                    category?.color() ?: MaterialTheme.colorScheme.primary,
-                                    CircleShape
-                                )
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SummaryCard(
-    title: String,
-    amountMinor: Long,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        )
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(
-                title,
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                formatCurrency(amountMinor),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-    }
-}
