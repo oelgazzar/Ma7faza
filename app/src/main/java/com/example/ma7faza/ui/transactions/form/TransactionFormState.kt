@@ -5,6 +5,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.example.ma7faza.domain.models.Category
 import com.example.ma7faza.domain.models.Transaction
 import com.example.ma7faza.domain.models.TransactionType
 import com.example.ma7faza.utils.formatAmount
@@ -32,6 +33,9 @@ class TransactionFormState(
     var categoryId: String by mutableStateOf(categoryId)
         private set
 
+    var categories: List<Category> by mutableStateOf(emptyList())
+        private set
+
     private var submitted by mutableStateOf(false)
 
     val errors: List<TransactionFormValidationError>
@@ -53,6 +57,10 @@ class TransactionFormState(
 
     fun updateCategory(categoryId: String) {
         this.categoryId = categoryId
+    }
+
+    fun updateCategories(categories: List<Category>) {
+        this.categories = categories
     }
 
     fun validate(): Transaction? {

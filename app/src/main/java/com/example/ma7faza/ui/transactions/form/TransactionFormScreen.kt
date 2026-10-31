@@ -84,7 +84,6 @@ fun TransactionFormScreen(
                 TransactionFormContent(
                     formState = ui.formState,
                     submissionState = submissionState,
-                    onTypeSelected = { viewModel.updateType(ui.formState, it) },
                     onSave = {
                         keyboardController?.hide()
                         viewModel.save()
@@ -101,7 +100,6 @@ fun TransactionFormScreen(
 fun TransactionFormContent(
     formState: TransactionFormState,
     submissionState: SubmissionState,
-    onTypeSelected: (com.example.ma7faza.domain.models.TransactionType) -> Unit,
     onSave: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -112,7 +110,7 @@ fun TransactionFormContent(
     ) {
         TransactionTypeSelector(
             selectedType = formState.type,
-            onTypeSelected = onTypeSelected,
+            onTypeSelected = formState::updateType,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -173,7 +171,6 @@ private fun IdleTransactionFormContentPrev() {
             formState = TransactionFormState(),
             onSave = {},
             submissionState = SubmissionState.Idle,
-            onTypeSelected = {},
             modifier = Modifier.padding(16.dp)
         )
     }

@@ -44,6 +44,21 @@ class TransactionFormViewModelTest {
         )
     }
 
+
+    @Test
+    fun `categories follow the selected transaction type`() = runTest {
+        val formState = (viewModel.uiState.value as? TransactionFormUiState.Success)?.formState
+        formState ?: throw AssertionFailedError("formState is null")
+
+        advanceUntilIdle()
+        assertEquals(listOf("OTHER_EXPENSE", "FOOD"), formState.categories.map { it.id })
+
+        formState.updateType(TransactionType.INCOME)
+        advanceUntilIdle()
+
+        assertEquals(listOf("OTHER_INCOME", "SALARY"), formState.categories.map { it.id })
+    }
+
     @Test
     fun `viewModel with empty state not saved`() = runTest {
         viewModel.save()
@@ -131,6 +146,7 @@ class TransactionFormViewModelTest {
         )
         val viewModel = TransactionFormViewModel(
             transactionRepository,
+            categoryRepository,
             savedStateHandle = SavedStateHandle(mapOf("id" to 1L))
         )
         val formState = (viewModel.uiState.value as? TransactionFormUiState.Success)?.formState
