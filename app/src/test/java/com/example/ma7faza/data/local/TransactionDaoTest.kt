@@ -74,6 +74,17 @@ class TransactionDaoTest {
     }
 
     @Test
+    fun summaryFiltersInclusiveDateRange() = runBlocking {
+        dao.upsert(transaction(1, 100_000, TransactionType.INCOME, LocalDate.of(2026, 10, 1)))
+        dao.upsert(transaction(2, 25_000, TransactionType.EXPENSE, LocalDate.of(2026, 10, 15)))
+        dao.upsert(transaction(3, 50_000, TransactionType.INCOME, LocalDate.of(2026, 10, 31)))
+        dao.upsert(transaction(4, 70_000, TransactionType.INCOME, LocalDate.of(2026, 9, 30)))
+        dao.upsert(transaction(5, 10_000, TransactionType.EXPENSE, LocalDate.of(2026, 11, 1)))
+        assertEquals(TransactionSummaryResult(150_000L, 25_000L),
+            dao.observeSummary(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31)).first())
+    }
+
+    @Test
     fun `summary updates after deleting a transaction`() = runBlocking {
         dao.upsert(transaction(id = 1, amountMinor = 100_000, type = TransactionType.INCOME))
         dao.upsert(transaction(id = 2, amountMinor = 30_000, type = TransactionType.EXPENSE))
@@ -88,12 +99,13 @@ class TransactionDaoTest {
     private fun transaction(
         id: Long,
         amountMinor: Long,
-        type: TransactionType
+        type: TransactionType,
+        date: LocalDate = LocalDate.of(2026, 10, 31)
     ) = TransactionEntity(
         id = id,
         name = "Transaction $id",
         amountMinor = amountMinor,
-        date = LocalDate.of(2026, 10, 31),
+        date = date,
         type = type
     )
 }
