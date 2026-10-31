@@ -1,6 +1,5 @@
 package com.example.ma7faza.ui.dashboard
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,9 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.ma7faza.domain.models.Transaction
-import com.example.ma7faza.domain.models.TransactionType
-import com.example.ma7faza.utils.formatCurrency
+import com.example.ma7faza.ui.transactions.components.TransactionItem
 import com.example.test.add
 
 @Composable
@@ -109,7 +106,13 @@ private fun DashboardContent(
             item { Text("No transactions yet", color = MaterialTheme.colorScheme.onSurfaceVariant) }
         } else {
             items(state.recentTransactions, key = { it.id }) { transaction ->
-                RecentTransactionRow(transaction) { onEdit(transaction.id) }
+                TransactionItem(
+                    transaction = transaction,
+                    category = state.categories[transaction.categoryId],
+                    date = transaction.date,
+                    onClick = { onEdit(transaction.id) },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }
@@ -125,23 +128,3 @@ private fun SummaryCard(title: String, amountMinor: Long, modifier: Modifier = M
     }
 }
 
-@Composable
-private fun RecentTransactionRow(transaction: Transaction, onClick: () -> Unit) {
-    val amountColor = when (transaction.type) {
-        TransactionType.INCOME -> MaterialTheme.colorScheme.primary
-        TransactionType.EXPENSE -> MaterialTheme.colorScheme.error
-    }
-    Card(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
-    ) {
-        Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(transaction.name, style = MaterialTheme.typography.titleMedium)
-                Text(transaction.date.toString(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            Spacer(Modifier.width(12.dp))
-            Text(formatCurrency(transaction.amountMinor), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = amountColor)
-        }
-    }
-}
