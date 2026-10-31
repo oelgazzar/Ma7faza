@@ -1,5 +1,6 @@
 package com.example.ma7faza.domain.repository
 
+import com.example.ma7faza.domain.models.CategoryExpense
 import com.example.ma7faza.domain.models.Transaction
 import com.example.ma7faza.domain.models.TransactionSummary
 import kotlinx.coroutines.flow.Flow
@@ -10,8 +11,11 @@ interface TransactionRepository {
     fun observe(id: Long): Flow<Transaction?>
     fun observeBalance(): Flow<Long>
     fun observeSummary(startDate: LocalDate? = null, endDate: LocalDate? = null): Flow<TransactionSummary>
+    fun observeCategoryExpenses(
+        startDate: LocalDate? = null,
+        endDate: LocalDate? = null
+    ): Flow<List<CategoryExpense>>
 
     suspend fun upsert(transaction: Transaction)
-
     suspend fun delete(id: Long)
 }
