@@ -15,10 +15,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.ma7faza.R
+import com.example.ma7faza.ui.categories.color
+import com.example.ma7faza.ui.categories.displayName
 import com.example.ma7faza.domain.models.Category
 
 @Composable
@@ -61,33 +61,3 @@ fun CategorySelector(
     }
 }
 
-@Composable
-private fun Category.displayName(): String = when (id) {
-    "OTHER_EXPENSE" -> stringResource(R.string.other_expense)
-    "FOOD" -> stringResource(R.string.food)
-    "TRANSPORT" -> stringResource(R.string.transport)
-    "SHOPPING" -> stringResource(R.string.shopping)
-    "BILLS" -> stringResource(R.string.bills)
-    "HEALTH" -> stringResource(R.string.health)
-    "ENTERTAINMENT" -> stringResource(R.string.entertainment)
-    "EDUCATION" -> stringResource(R.string.education)
-    "OTHER_INCOME" -> stringResource(R.string.other_income)
-    "SALARY" -> stringResource(R.string.salary)
-    "FREELANCE" -> stringResource(R.string.freelance)
-    "INVESTMENT" -> stringResource(R.string.investment)
-    "GIFT" -> stringResource(R.string.gift)
-    else -> name
-}
-
-@Composable
-private fun Category.color(): Color {
-    val colors = MaterialTheme.colorScheme
-    return when (colorKey) {
-        "orange", "pink", "teal" -> colors.tertiary
-        "blue", "indigo" -> colors.primary
-        "purple" -> colors.secondary
-        "red" -> colors.error
-        "green" -> colors.primary
-        else -> colors.onSurfaceVariant
-    }
-}

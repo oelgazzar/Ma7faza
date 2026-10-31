@@ -3,13 +3,15 @@ package com.example.ma7faza.ui.transactions.list
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ma7faza.domain.models.Transaction
+import com.example.ma7faza.domain.models.TransactionType
+import com.example.ma7faza.domain.repository.CategoryRepository
 import com.example.ma7faza.domain.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -17,12 +19,19 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TransactionListViewModel @Inject constructor(
-    private val transactionRepository: TransactionRepository
-): ViewModel() {
-    val uiState: StateFlow<TransactionListUiState> = transactionRepository.observeAll()
-        .map<List<Transaction>, TransactionListUiState> {
-            TransactionListUiState.Success(it)
-        }
+    private val transactionRepository: TransactionRepository,
+    categoryRepository: CategoryRepository
+) : ViewModel() {
+    val uiState: StateFlow<TransactionListUiState> = combine(
+        transactionRepository.observeAll(),
+        categoryRepository.observeByType(TransactionType.EXPENSE),
+        categoryRepository.observeByType(TransactionType.INCOME)
+    ) { transactions, expenseCategories, incomeCategories ->
+        TransactionListUiState.Success(
+            transactions = transactions,
+            categories = (expenseCategories + incomeCategories).associateBy { it.id }
+        )
+    }
         .catch {
             emit(TransactionListUiState.Error(it.message))
         }
@@ -40,9 +49,7 @@ class TransactionListViewModel @Inject constructor(
     fun deleteTransaction(transaction: Transaction) {
         viewModelScope.launch {
             transactionRepository.delete(transaction.id)
-            println(deletedTransaction)
             deletedTransaction = transaction
-            println(deletedTransaction)
             _events.trySend(TransactionListUiEvent.OnDelete)
         }
     }
@@ -60,5 +67,5 @@ class TransactionListViewModel @Inject constructor(
 }
 
 sealed interface TransactionListUiEvent {
-    data object OnDelete: TransactionListUiEvent
+    data object OnDelete : TransactionListUiEvent
 }

@@ -152,9 +152,10 @@ private fun TransactionListContent(
                         }
                         items(group.transactions, key = { it.id }) { transaction ->
                             TransactionRow(
-                                transaction,
+                                transaction = transaction,
+                                category = uiState.categories[transaction.categoryId],
                                 onEdit = onEditTransaction,
-                                onDelete,
+                                onDelete = onDelete,
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -170,7 +171,7 @@ private fun TransactionListContent(
 private fun TransactionListContentPreview() {
     AppTheme {
         TransactionListContent(
-            uiState = TransactionListUiState.Success(sampleTransactions),
+            uiState = TransactionListUiState.Success(sampleTransactions, emptyMap()),
             onAddTransaction = {},
             onEditTransaction = {},
             onDelete = {}
@@ -183,7 +184,7 @@ private fun TransactionListContentPreview() {
 private fun EmptyTransactionListContentPreview() {
     AppTheme {
         TransactionListContent(
-            uiState = TransactionListUiState.Success(listOf()),
+            uiState = TransactionListUiState.Success(emptyList(), emptyMap()),
             onAddTransaction = {},
             onDelete = {},
             onEditTransaction = {}
