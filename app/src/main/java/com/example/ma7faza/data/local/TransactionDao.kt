@@ -4,7 +4,6 @@ import androidx.room3.Dao
 import androidx.room3.Query
 import androidx.room3.Upsert
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDate
 
 @Dao
 interface TransactionDao {
@@ -19,12 +18,12 @@ interface TransactionDao {
             COALESCE(SUM(CASE WHEN type = 'INCOME' THEN amount_minor ELSE 0 END), 0) AS incomeMinor,
             COALESCE(SUM(CASE WHEN type = 'EXPENSE' THEN amount_minor ELSE 0 END), 0) AS expensesMinor
         FROM transactions
-        WHERE (:startDate IS NULL OR date >= :startDate)
-          AND (:endDate IS NULL OR date <= :endDate)
     """)
-    fun observeSummary(startDate: LocalDate?, endDate: LocalDate?): Flow<TransactionSummaryResult>
+    fun observeSummary(): Flow<TransactionSummaryResult>
 
-    @Upsert suspend fun upsert(transaction: TransactionEntity)
+    @Upsert
+    suspend fun upsert(transaction: TransactionEntity)
+
     @Query("DELETE FROM transactions WHERE id = :id")
     suspend fun delete(id: Long)
 }

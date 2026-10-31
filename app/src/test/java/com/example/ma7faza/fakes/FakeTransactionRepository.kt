@@ -7,7 +7,6 @@ import com.example.ma7faza.domain.repository.TransactionRepository
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import java.time.LocalDate
 
 class FakeTransactionRepository : TransactionRepository {
     var transactions = mutableListOf<Transaction>()
@@ -28,19 +27,13 @@ class FakeTransactionRepository : TransactionRepository {
         return flowOf(observeSummaryValue().balanceMinor)
     }
 
-    override fun observeSummary(startDate: LocalDate?, endDate: LocalDate?): Flow<TransactionSummary> {
-        val selected = transactions.filter {
-            (startDate == null || it.date >= startDate) &&
-                (endDate == null || it.date <= endDate)
-        }
-        return flowOf(selected.toSummary())
+    override fun observeSummary(): Flow<TransactionSummary> {
+        return flowOf(observeSummaryValue())
     }
 
-    private fun observeSummaryValue() = transactions.toSummary()
-
-    private fun List<Transaction>.toSummary() = TransactionSummary(
-        incomeMinor = filter { it.type == TransactionType.INCOME }.sumOf { it.amountMinor },
-        expensesMinor = filter { it.type == TransactionType.EXPENSE }.sumOf { it.amountMinor }
+    private fun observeSummaryValue() = TransactionSummary(
+        incomeMinor = transactions.filter { it.type == TransactionType.INCOME }.sumOf { it.amountMinor },
+        expensesMinor = transactions.filter { it.type == TransactionType.EXPENSE }.sumOf { it.amountMinor }
     )
 
     override suspend fun upsert(transaction: Transaction) {

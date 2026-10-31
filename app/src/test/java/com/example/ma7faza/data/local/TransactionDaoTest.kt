@@ -41,7 +41,7 @@ class TransactionDaoTest {
     fun `empty database has zero income and expenses`() = runBlocking {
         assertEquals(
             TransactionSummaryResult(incomeMinor = 0L, expensesMinor = 0L),
-            dao.observeSummary(null, null).first()
+            dao.observeSummary().first()
         )
     }
 
@@ -53,7 +53,7 @@ class TransactionDaoTest {
 
         assertEquals(
             TransactionSummaryResult(incomeMinor = 250_000L, expensesMinor = 100_000L),
-            dao.observeSummary(null, null).first()
+            dao.observeSummary().first()
         )
     }
 
@@ -62,14 +62,14 @@ class TransactionDaoTest {
         dao.upsert(transaction(id = 1, amountMinor = 100_000, type = TransactionType.INCOME))
         assertEquals(
             TransactionSummaryResult(incomeMinor = 100_000L, expensesMinor = 0L),
-            dao.observeSummary(null, null).first()
+            dao.observeSummary().first()
         )
 
         dao.upsert(transaction(id = 2, amountMinor = 30_000, type = TransactionType.EXPENSE))
 
         assertEquals(
             TransactionSummaryResult(incomeMinor = 100_000L, expensesMinor = 30_000L),
-            dao.observeSummary(null, null).first()
+            dao.observeSummary().first()
         )
     }
 
@@ -81,34 +81,19 @@ class TransactionDaoTest {
 
         assertEquals(
             TransactionSummaryResult(incomeMinor = 0L, expensesMinor = 30_000L),
-            dao.observeSummary(null, null).first()
-        )
-    }
-
-    @Test
-    fun summaryFiltersInclusiveDateRange() = runBlocking {
-        dao.upsert(transaction(1, 100_000, TransactionType.INCOME, LocalDate.of(2026, 10, 1)))
-        dao.upsert(transaction(2, 25_000, TransactionType.EXPENSE, LocalDate.of(2026, 10, 15)))
-        dao.upsert(transaction(3, 50_000, TransactionType.INCOME, LocalDate.of(2026, 10, 31)))
-        dao.upsert(transaction(4, 70_000, TransactionType.INCOME, LocalDate.of(2026, 9, 30)))
-        dao.upsert(transaction(5, 10_000, TransactionType.EXPENSE, LocalDate.of(2026, 11, 1)))
-
-        assertEquals(
-            TransactionSummaryResult(150_000L, 25_000L),
-            dao.observeSummary(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31)).first()
+            dao.observeSummary().first()
         )
     }
 
     private fun transaction(
         id: Long,
         amountMinor: Long,
-        type: TransactionType,
-        date: LocalDate = LocalDate.of(2026, 10, 31)
+        type: TransactionType
     ) = TransactionEntity(
         id = id,
         name = "Transaction $id",
         amountMinor = amountMinor,
-        date = date,
+        date = LocalDate.of(2026, 10, 31),
         type = type
     )
 }
