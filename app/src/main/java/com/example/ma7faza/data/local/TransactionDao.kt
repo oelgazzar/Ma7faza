@@ -14,19 +14,12 @@ interface TransactionDao {
     fun observe(id: Long): Flow<TransactionEntity?>
 
     @Query("""
-        SELECT COALESCE(
-            SUM(
-                CASE
-                    WHEN type = 'INCOME' THEN amount_minor
-                    WHEN type = 'EXPENSE' THEN -amount_minor
-                    ELSE 0
-                END
-            ),
-            0
-        )
+        SELECT
+            COALESCE(SUM(CASE WHEN type = 'INCOME' THEN amount_minor ELSE 0 END), 0) AS incomeMinor,
+            COALESCE(SUM(CASE WHEN type = 'EXPENSE' THEN amount_minor ELSE 0 END), 0) AS expensesMinor
         FROM transactions
     """)
-    fun observeBalance(): Flow<Long>
+    fun observeSummary(): Flow<TransactionSummaryResult>
 
     @Upsert
     suspend fun upsert(transaction: TransactionEntity)
