@@ -1,6 +1,7 @@
 package com.example.ma7faza.fakes
 
 import com.example.ma7faza.domain.models.Transaction
+import com.example.ma7faza.domain.models.TransactionType
 import com.example.ma7faza.domain.repository.TransactionRepository
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +20,16 @@ class FakeTransactionRepository : TransactionRepository {
 
     override fun observe(id: Long): Flow<Transaction?> {
         return flowOf(transactions.find { it.id == id })
+    }
+
+    override fun observeBalance(): Flow<Long> {
+        val balance = transactions.sumOf {
+            when (it.type) {
+                TransactionType.INCOME -> it.amountMinor
+                TransactionType.EXPENSE -> -it.amountMinor
+            }
+        }
+        return flowOf(balance)
     }
 
     override suspend fun upsert(transaction: Transaction) {
