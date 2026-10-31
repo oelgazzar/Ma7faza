@@ -49,7 +49,8 @@ class TransactionFormValidationTest {
                     name = "Salary",
                     amountMinor = 2_500_000,
                     date = LocalDate.of(2026, 10, 29),
-                    type = TransactionType.INCOME
+                    type = TransactionType.INCOME,
+                    categoryId = "OTHER_INCOME"
                 )
             ),
             result

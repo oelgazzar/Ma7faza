@@ -1,6 +1,7 @@
 package com.example.ma7faza.ui.transactions.form
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.example.ma7faza.domain.models.Transaction
@@ -45,6 +46,7 @@ class TransactionFormViewModelTest {
     }
 
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `categories follow the selected transaction type`() = runTest {
         val formState = (viewModel.uiState.value as? TransactionFormUiState.Success)?.formState
@@ -53,7 +55,9 @@ class TransactionFormViewModelTest {
         advanceUntilIdle()
         assertEquals(listOf("OTHER_EXPENSE", "FOOD"), formState.categories.map { it.id })
 
-        formState.updateType(TransactionType.INCOME)
+        Snapshot.withMutableSnapshot {
+            formState.updateType(TransactionType.INCOME)
+        }
         advanceUntilIdle()
 
         assertEquals(listOf("OTHER_INCOME", "SALARY"), formState.categories.map { it.id })
@@ -158,6 +162,7 @@ class TransactionFormViewModelTest {
     fun `viewModel with nonExisting transaction return error`() = runTest {
         val viewModel = TransactionFormViewModel(
             transactionRepository,
+            categoryRepository,
             savedStateHandle = SavedStateHandle(mapOf("id" to 1L))
         )
         assertEquals(TransactionFormUiState.Error, viewModel.uiState.value)
@@ -176,6 +181,7 @@ class TransactionFormViewModelTest {
         )
         val viewModel = TransactionFormViewModel(
             transactionRepository,
+            categoryRepository,
             savedStateHandle = SavedStateHandle(mapOf("id" to 1L))
         )
         val formState = (viewModel.uiState.value as? TransactionFormUiState.Success)?.formState

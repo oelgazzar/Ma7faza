@@ -41,7 +41,7 @@ class TransactionDaoTest {
     fun `empty database has zero income and expenses`() = runBlocking {
         assertEquals(
             TransactionSummaryResult(incomeMinor = 0L, expensesMinor = 0L),
-            dao.observeSummary().first()
+            dao.observeSummary(null, null).first()
         )
     }
 
@@ -53,7 +53,7 @@ class TransactionDaoTest {
 
         assertEquals(
             TransactionSummaryResult(incomeMinor = 250_000L, expensesMinor = 100_000L),
-            dao.observeSummary().first()
+            dao.observeSummary(null, null).first()
         )
     }
 
@@ -62,14 +62,14 @@ class TransactionDaoTest {
         dao.upsert(transaction(id = 1, amountMinor = 100_000, type = TransactionType.INCOME))
         assertEquals(
             TransactionSummaryResult(incomeMinor = 100_000L, expensesMinor = 0L),
-            dao.observeSummary().first()
+            dao.observeSummary(null, null).first()
         )
 
         dao.upsert(transaction(id = 2, amountMinor = 30_000, type = TransactionType.EXPENSE))
 
         assertEquals(
             TransactionSummaryResult(incomeMinor = 100_000L, expensesMinor = 30_000L),
-            dao.observeSummary().first()
+            dao.observeSummary(null, null).first()
         )
     }
 
@@ -92,7 +92,7 @@ class TransactionDaoTest {
 
         assertEquals(
             TransactionSummaryResult(incomeMinor = 0L, expensesMinor = 30_000L),
-            dao.observeSummary().first()
+            dao.observeSummary(null, null).first()
         )
     }
 

@@ -116,12 +116,6 @@ fun TransactionFormContent(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        CategorySelector(
-            categories = formState.categories,
-            selectedCategoryId = formState.categoryId,
-            onCategorySelected = formState::updateCategory
-        )
-        Spacer(modifier = Modifier.height(16.dp))
 
         AmountField(
             formState.amount,
@@ -135,13 +129,18 @@ fun TransactionFormContent(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-
         DateField(formState.date, onDateSelected = formState::updateDate)
         Spacer(modifier = Modifier.height(16.dp))
 
         NoteField(formState.note)
         Spacer(modifier = Modifier.height(32.dp))
 
+        CategorySelector(
+            categories = formState.categories,
+            selectedCategoryId = formState.categoryId,
+            onCategorySelected = formState::updateCategory
+        )
+        Spacer(modifier = Modifier.height(16.dp))
 
         SaveButton(
             onClick = onSave,
