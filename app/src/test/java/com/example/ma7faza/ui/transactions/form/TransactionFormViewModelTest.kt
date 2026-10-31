@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.example.ma7faza.domain.models.Transaction
 import com.example.ma7faza.domain.models.TransactionType
+import com.example.ma7faza.fakes.FakeCategoryRepository
 import com.example.ma7faza.fakes.FakeTransactionRepository
 import junit.framework.AssertionFailedError
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +30,7 @@ import java.time.LocalDate
 class TransactionFormViewModelTest {
     private lateinit var viewModel: TransactionFormViewModel
     private val transactionRepository = FakeTransactionRepository()
+    private val categoryRepository = FakeCategoryRepository()
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -37,6 +39,7 @@ class TransactionFormViewModelTest {
     fun setup() {
         viewModel = TransactionFormViewModel(
             transactionRepository,
+            categoryRepository,
             savedStateHandle = SavedStateHandle()
         )
     }

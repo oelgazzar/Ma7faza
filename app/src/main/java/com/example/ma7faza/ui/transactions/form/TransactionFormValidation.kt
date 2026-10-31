@@ -11,7 +11,11 @@ fun validateTransactionForm(
     amount: String,
     note: String?,
     date: LocalDate,
-    type: TransactionType
+    type: TransactionType,
+    categoryId: String = when (type) {
+        TransactionType.EXPENSE -> "OTHER_EXPENSE"
+        TransactionType.INCOME -> "OTHER_INCOME"
+    }
 ): TransactionFormValidationResult {
     val causes = mutableListOf<TransactionFormValidationError>()
     val parsedAmount = parseAmount(amount)
@@ -24,15 +28,12 @@ fun validateTransactionForm(
         causes.add(TransactionFormValidationError.EmptyAmount)
     } else if (parsedAmount == 0L) {
         causes.add(TransactionFormValidationError.ZeroAmount)
-    }
-    else if (parsedAmount == null) {
+    } else if (parsedAmount == null) {
         causes.add(TransactionFormValidationError.InvalidAmount)
     }
 
     if (causes.isNotEmpty() || parsedAmount == null) {
-        return TransactionFormValidationResult.Error(
-            causes = causes
-        )
+        return TransactionFormValidationResult.Error(causes = causes)
     }
 
     return TransactionFormValidationResult.Success(
@@ -42,7 +43,8 @@ fun validateTransactionForm(
             amountMinor = parsedAmount,
             note = note?.trim()?.takeIf { it.isNotBlank() },
             date = date,
-            type = type
+            type = type,
+            categoryId = categoryId
         )
     )
 }

@@ -17,7 +17,8 @@ class TransactionFormState(
     amount: String = "",
     note: String? = null,
     date: LocalDate = LocalDate.now(),
-    type: TransactionType = TransactionType.EXPENSE
+    type: TransactionType = TransactionType.EXPENSE,
+    categoryId: String = defaultCategoryId(type)
 ) {
     val name = TextFieldState(name)
     val amount = TextFieldState(amount)
@@ -26,6 +27,9 @@ class TransactionFormState(
         private set
 
     var type: TransactionType by mutableStateOf(type)
+        private set
+
+    var categoryId: String by mutableStateOf(categoryId)
         private set
 
     private var submitted by mutableStateOf(false)
@@ -42,7 +46,13 @@ class TransactionFormState(
     }
 
     fun updateType(type: TransactionType) {
+        if (this.type == type) return
         this.type = type
+        categoryId = defaultCategoryId(type)
+    }
+
+    fun updateCategory(categoryId: String) {
+        this.categoryId = categoryId
     }
 
     fun validate(): Transaction? {
@@ -56,7 +66,8 @@ class TransactionFormState(
         amount = amount.text.toString(),
         note = note.text.toString(),
         date = date,
-        type = type
+        type = type,
+        categoryId = categoryId
     )
 
     companion object {
@@ -66,7 +77,13 @@ class TransactionFormState(
             amount = formatAmount(transaction.amountMinor),
             note = transaction.note,
             date = transaction.date,
-            type = transaction.type
+            type = transaction.type,
+            categoryId = transaction.categoryId
         )
     }
+}
+
+private fun defaultCategoryId(type: TransactionType) = when (type) {
+    TransactionType.EXPENSE -> "OTHER_EXPENSE"
+    TransactionType.INCOME -> "OTHER_INCOME"
 }
