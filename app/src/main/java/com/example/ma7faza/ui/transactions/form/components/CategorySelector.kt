@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.ma7faza.R
 import com.example.ma7faza.ui.categories.color
 import com.example.ma7faza.ui.categories.displayName
 import com.example.ma7faza.domain.models.Category

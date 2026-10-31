@@ -30,7 +30,7 @@ class TransactionListViewModel @Inject constructor(
         TransactionListUiState.Success(
             transactions = transactions,
             categories = (expenseCategories + incomeCategories).associateBy { it.id }
-        )
+        ) as TransactionListUiState
     }
         .catch {
             emit(TransactionListUiState.Error(it.message))

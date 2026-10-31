@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -24,7 +23,6 @@ import com.example.ma7faza.domain.models.Transaction
 import com.example.ma7faza.domain.models.TransactionType
 import com.example.ma7faza.ui.categories.color
 import com.example.ma7faza.ui.categories.displayName
-import com.example.ma7faza.ui.theme.icons.delete
 import com.example.ma7faza.utils.formatCurrency
 import java.time.LocalDate
 
@@ -91,7 +89,7 @@ fun TransactionItem(
 
             onDelete?.let { delete ->
                 IconButton(onClick = delete) {
-                    Icon(delete, contentDescription = null)
+                    Icon(com.example.ma7faza.ui.theme.icons.delete, contentDescription = null)
                 }
             }
         }
