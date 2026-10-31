@@ -29,6 +29,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ma7faza.R
 import com.example.ma7faza.ui.transactions.form.components.AmountField
+import com.example.ma7faza.ui.transactions.form.components.CategorySelector
 import com.example.ma7faza.ui.transactions.form.components.DateField
 import com.example.ma7faza.ui.transactions.form.components.ErrorScreen
 import com.example.ma7faza.ui.transactions.form.components.LoadingScreen
@@ -115,6 +116,13 @@ fun TransactionFormContent(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
+        CategorySelector(
+            categories = formState.categories,
+            selectedCategoryId = formState.categoryId,
+            onCategorySelected = formState::updateCategory
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
         AmountField(
             formState.amount,
             error = formState.errors.firstOrNull { it.field == "amount" }
@@ -197,7 +205,6 @@ private fun SavingTransactionFormContentPrev() {
             formState = TransactionFormState(),
             onSave = {},
             submissionState = SubmissionState.Saving,
-            onTypeSelected = {},
             modifier = Modifier.padding(16.dp)
         )
     }

@@ -7,4 +7,18 @@
     <string name="add_transaction">Add transaction</string>
     <string name="no_transactions_yet">No transactions yet</string>
     <string name="failed_to_save_transaction">Failed to save transaction</string>
+    <string name="category">Category</string>
+    <string name="other_expense">Other</string>
+    <string name="food">Food</string>
+    <string name="transport">Transport</string>
+    <string name="shopping">Shopping</string>
+    <string name="bills">Bills</string>
+    <string name="health">Health</string>
+    <string name="entertainment">Entertainment</string>
+    <string name="education">Education</string>
+    <string name="other_income">Other</string>
+    <string name="salary">Salary</string>
+    <string name="freelance">Freelance</string>
+    <string name="investment">Investment</string>
+    <string name="gift">Gift</string>
 </resources>
