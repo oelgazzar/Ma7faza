@@ -2,6 +2,7 @@ package com.example.ma7faza.ui.transactions.list
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -159,7 +160,7 @@ fun TransactionListScreen(
 
                     TextButton(onClick = { isFilterSheetVisible = true }) {
                         Text(
-                            if (filters.type == TransactionTypeFilter.ALL) {
+                            if (!filters.hasActiveFilters()) {
                                 stringResource(R.string.filter)
                             } else {
                                 stringResource(R.string.filter_active)
@@ -234,11 +235,21 @@ private fun TransactionFilterSheet(
             style = MaterialTheme.typography.titleMedium
         )
 
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             TransactionTypeFilter.entries.forEach { type ->
                 FilterChip(
                     selected = temporaryFilters.type == type,
-                    onClick = { temporaryFilters = temporaryFilters.copy(type = type) },
+                    onClick = {
+                        val compatibleCategoryIds = categories.filter { category ->
+                            type == TransactionTypeFilter.ALL ||
+                                (type == TransactionTypeFilter.INCOME && category.type == TransactionType.INCOME) ||
+                                (type == TransactionTypeFilter.EXPENSE && category.type == TransactionType.EXPENSE)
+                        }.map { it.id }.toSet()
+                        temporaryFilters = temporaryFilters.copy(
+                            type = type,
+                            categoryIds = temporaryFilters.categoryIds.intersect(compatibleCategoryIds)
+                        )
+                    },
                     label = {
                         Text(when (type) {
                             TransactionTypeFilter.ALL -> stringResource(R.string.all_transactions)
@@ -252,7 +263,7 @@ private fun TransactionFilterSheet(
 
         HorizontalDivider()
         Text(stringResource(R.string.category), style = MaterialTheme.typography.titleMedium)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             FilterChip(
                 selected = temporaryFilters.categoryIds.isEmpty(),
                 onClick = { temporaryFilters = temporaryFilters.copy(categoryIds = emptySet()) },
@@ -355,6 +366,9 @@ private fun TransactionFilterSheet(
 @Composable
 private enum class DatePickerTarget { START, END }
 
+private fun TransactionFilterState.hasActiveFilters(): Boolean =
+    type != TransactionTypeFilter.ALL || categoryIds.isNotEmpty() || startDate != null || endDate != null
+
 @Composable
 private fun TransactionListContent(
     uiState: TransactionListUiState,
@@ -386,7 +400,7 @@ private fun TransactionListContent(
                 filters = filters,
                 categories = uiState.categories
             )
-            val hasActiveFilter = filters.type != TransactionTypeFilter.ALL || filters.categoryIds.isNotEmpty() || filters.startDate != null || filters.endDate != null
+            val hasActiveFilter = filters.hasActiveFilters()
 
             if (filteredTransactions.isEmpty()) {
                 if (searchQuery.isBlank() && !hasActiveFilter) {
