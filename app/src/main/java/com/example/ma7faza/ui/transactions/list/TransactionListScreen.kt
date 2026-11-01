@@ -1,15 +1,16 @@
 package com.example.ma7faza.ui.transactions.list
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -32,9 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,6 +44,7 @@ import com.example.ma7faza.data.sample.sampleTransactions
 import com.example.ma7faza.domain.models.Transaction
 import com.example.ma7faza.ui.theme.AppTheme
 import com.example.test.add
+import com.example.test.search
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -63,12 +62,12 @@ fun TransactionListScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackBarState = remember { SnackbarHostState() }
     var isSearchExpanded by rememberSaveable { mutableStateOf(false) }
-    var searchQuery by rememberSaveable { mutableStateOf("") }
+    val searchQuery = rememberTextFieldState()
 
     LaunchedEffect(viewModel) {
         var job: Job? = null
         viewModel.events.collect { event ->
-            when(event) {
+            when (event) {
                 TransactionListUiEvent.OnDelete -> {
                     job?.cancel()
                     job = launch {
@@ -77,7 +76,7 @@ fun TransactionListScreen(
                             actionLabel = "Undo",
                             withDismissAction = true
                         ).run {
-                            when(this) {
+                            when (this) {
                                 SnackbarResult.ActionPerformed -> viewModel.undoDelete()
                                 SnackbarResult.Dismissed -> viewModel.onConfirmDelete()
                             }
@@ -94,10 +93,9 @@ fun TransactionListScreen(
                 title = {
                     if (isSearchExpanded) {
                         TextField(
-                            value = searchQuery,
-                            onValueChange = { searchQuery = it },
-                            placeholder = { Text("Search transactions") },
-                            singleLine = true,
+                            state = searchQuery,
+                            placeholder = { Text(stringResource(R.string.search_transactions)) },
+                            lineLimits = TextFieldLineLimits.SingleLine,
                             modifier = Modifier.fillMaxWidth(),
                             colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.Transparent,
@@ -107,22 +105,26 @@ fun TransactionListScreen(
                             )
                         )
                     } else {
-                        Text("Transactions")
+                        Text(stringResource(R.string.transactions))
                     }
                 },
                 actions = {
                     if (isSearchExpanded) {
                         TextButton(
                             onClick = {
-                                searchQuery = ""
+                                searchQuery.clearText()
                                 isSearchExpanded = false
                             }
                         ) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.cancel))
                         }
                     } else {
                         IconButton(onClick = { isSearchExpanded = true }) {
-                            SearchIcon()
+                            Icon(
+                                search,
+                                null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 }
@@ -142,33 +144,13 @@ fun TransactionListScreen(
     ) { innerPadding ->
         TransactionListContent(
             uiState = uiState,
-            searchQuery = searchQuery,
+            searchQuery = searchQuery.text.toString(),
             onAddTransaction = onAddTransaction,
             onEditTransaction = onEditTransaction,
             onDelete = viewModel::deleteTransaction,
             modifier = Modifier
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
-        )
-    }
-}
-
-@Composable
-private fun SearchIcon() {
-    val color = MaterialTheme.colorScheme.onSurface
-    Canvas(Modifier.size(24.dp)) {
-        drawCircle(
-            color = color,
-            radius = 6.dp.toPx(),
-            center = Offset(10.dp.toPx(), 10.dp.toPx()),
-            style = Stroke(width = 2.dp.toPx())
-        )
-        drawLine(
-            color = color,
-            start = Offset(14.5.dp.toPx(), 14.5.dp.toPx()),
-            end = Offset(21.dp.toPx(), 21.dp.toPx()),
-            strokeWidth = 2.dp.toPx(),
-            cap = StrokeCap.Round
         )
     }
 }
@@ -207,9 +189,9 @@ private fun TransactionListContent(
             } else {
                 uiState.transactions.filter { transaction ->
                     transaction.name.contains(query, ignoreCase = true) ||
-                        transaction.note.orEmpty().contains(query, ignoreCase = true) ||
-                        uiState.categories[transaction.categoryId]?.name
-                            ?.contains(query, ignoreCase = true) == true
+                            transaction.note.orEmpty().contains(query, ignoreCase = true) ||
+                            uiState.categories[transaction.categoryId]?.name
+                                ?.contains(query, ignoreCase = true) == true
                 }
             }
 
@@ -219,7 +201,9 @@ private fun TransactionListContent(
                 } else {
                     Text(
                         text = "No matching transactions",
-                        modifier = modifier.fillMaxSize().wrapContentSize()
+                        modifier = modifier
+                            .fillMaxSize()
+                            .wrapContentSize()
                     )
                 }
             } else {

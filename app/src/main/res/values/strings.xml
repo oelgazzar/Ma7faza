@@ -21,4 +21,7 @@
     <string name="freelance">Freelance</string>
     <string name="investment">Investment</string>
     <string name="gift">Gift</string>
+    <string name="search_transactions">Search transactions</string>
+    <string name="transactions">Transactions</string>
+    <string name="cancel">Cancel</string>
 </resources>
