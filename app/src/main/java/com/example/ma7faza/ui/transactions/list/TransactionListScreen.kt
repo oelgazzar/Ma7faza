@@ -1,7 +1,9 @@
 package com.example.ma7faza.ui.transactions.list
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,11 +13,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -32,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -65,7 +72,14 @@ fun TransactionListScreen(
     val snackBarState = remember { SnackbarHostState() }
     var isSearchExpanded by rememberSaveable { mutableStateOf(false) }
     val searchQuery = rememberTextFieldState()
-    val focusRequester =  remember { FocusRequester() }
+    val focusRequester = remember { FocusRequester() }
+    var appliedTypeFilter by rememberSaveable {
+        mutableStateOf(TransactionTypeFilter.ALL)
+    }
+    var draftTypeFilter by rememberSaveable {
+        mutableStateOf(TransactionTypeFilter.ALL)
+    }
+    var isFilterSheetVisible by rememberSaveable { mutableStateOf(false) }
     val errorMessage = stringResource(R.string.transaction_deleted)
 
     LaunchedEffect(viewModel) {
@@ -92,9 +106,7 @@ fun TransactionListScreen(
     }
 
     LaunchedEffect(isSearchExpanded) {
-        if (isSearchExpanded) {
-            focusRequester.requestFocus()
-        }
+        if (isSearchExpanded) focusRequester.requestFocus()
     }
 
     Scaffold(
@@ -131,15 +143,28 @@ fun TransactionListScreen(
                             Text(stringResource(R.string.cancel))
                         }
                     } else {
-                        IconButton(onClick = {
-                            isSearchExpanded = true
-                        }) {
+                        IconButton(onClick = { isSearchExpanded = true }) {
                             Icon(
                                 search,
                                 null,
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
+                    }
+
+                    TextButton(
+                        onClick = {
+                            draftTypeFilter = appliedTypeFilter
+                            isFilterSheetVisible = true
+                        }
+                    ) {
+                        Text(
+                            if (appliedTypeFilter == TransactionTypeFilter.ALL) {
+                                stringResource(R.string.filter)
+                            } else {
+                                stringResource(R.string.filter_active)
+                            }
+                        )
                     }
                 }
             )
@@ -152,13 +177,12 @@ fun TransactionListScreen(
                 Icon(add, null)
             }
         },
-        snackbarHost = {
-            SnackbarHost(snackBarState)
-        }
+        snackbarHost = { SnackbarHost(snackBarState) }
     ) { innerPadding ->
         TransactionListContent(
             uiState = uiState,
             searchQuery = searchQuery.text.toString(),
+            filters = TransactionFilterState(appliedTypeFilter),
             onAddTransaction = onAddTransaction,
             onEditTransaction = onEditTransaction,
             onDelete = viewModel::deleteTransaction,
@@ -167,12 +191,92 @@ fun TransactionListScreen(
                 .padding(horizontal = 16.dp)
         )
     }
+
+    if (isFilterSheetVisible) {
+        ModalBottomSheet(
+            onDismissRequest = { isFilterSheetVisible = false }
+        ) {
+            TransactionFilterSheet(
+                selectedType = draftTypeFilter,
+                onTypeSelected = { draftTypeFilter = it },
+                onReset = { draftTypeFilter = TransactionTypeFilter.ALL },
+                onApply = {
+                    appliedTypeFilter = draftTypeFilter
+                    isFilterSheetVisible = false
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun TransactionFilterSheet(
+    selectedType: TransactionTypeFilter,
+    onTypeSelected: (TransactionTypeFilter) -> Unit,
+    onReset: () -> Unit,
+    onApply: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .padding(bottom = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.filter_transactions),
+            style = MaterialTheme.typography.titleLarge
+        )
+        Text(
+            text = stringResource(R.string.transaction_type),
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        TransactionTypeFilter.entries.forEach { type ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = selectedType == type,
+                    onClick = { onTypeSelected(type) }
+                )
+                Text(
+                    text = when (type) {
+                        TransactionTypeFilter.ALL -> stringResource(R.string.all_transactions)
+                        TransactionTypeFilter.INCOME -> stringResource(R.string.income)
+                        TransactionTypeFilter.EXPENSE -> stringResource(R.string.expense)
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp)
+                )
+            }
+        }
+
+        HorizontalDivider()
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextButton(onClick = onReset) {
+                Text(stringResource(R.string.reset))
+            }
+            Button(onClick = onApply) {
+                Text(stringResource(R.string.apply))
+            }
+        }
+    }
 }
 
 @Composable
 private fun TransactionListContent(
     uiState: TransactionListUiState,
     searchQuery: String,
+    filters: TransactionFilterState,
     onAddTransaction: () -> Unit,
     onEditTransaction: (Long) -> Unit,
     onDelete: (Transaction) -> Unit,
@@ -180,48 +284,38 @@ private fun TransactionListContent(
 ) {
     when (uiState) {
         is TransactionListUiState.Loading -> Text(
-            text = stringResource(R.string.loading), modifier = modifier
-                .fillMaxSize()
-                .wrapContentSize()
+            text = stringResource(R.string.loading),
+            modifier = modifier.fillMaxSize().wrapContentSize()
         )
 
         is TransactionListUiState.Error -> {
-            val message = uiState.message
             Text(
-                text = message ?: stringResource(R.string.unknown_error),
+                text = uiState.message ?: stringResource(R.string.unknown_error),
                 color = MaterialTheme.colorScheme.error,
-                modifier = modifier
-                    .fillMaxSize()
-                    .wrapContentSize()
+                modifier = modifier.fillMaxSize().wrapContentSize()
             )
         }
 
         is TransactionListUiState.Success -> {
-            val query = searchQuery.trim()
-            val filteredTransactions = if (query.isBlank()) {
-                uiState.transactions
-            } else {
-                uiState.transactions.filter { transaction ->
-                    transaction.name.contains(query, ignoreCase = true) ||
-                            transaction.note.orEmpty().contains(query, ignoreCase = true) ||
-                            uiState.categories[transaction.categoryId]?.name
-                                ?.contains(query, ignoreCase = true) == true
-                }
-            }
+            val filteredTransactions = filterTransactions(
+                transactions = uiState.transactions,
+                query = searchQuery,
+                filters = filters,
+                categories = uiState.categories
+            )
+            val hasActiveFilter = filters.type != TransactionTypeFilter.ALL
 
             if (filteredTransactions.isEmpty()) {
-                if (query.isBlank()) {
+                if (searchQuery.isBlank() && !hasActiveFilter) {
                     EmptyScreen(onAddTransaction = onAddTransaction, modifier = modifier)
                 } else {
                     Text(
                         text = stringResource(R.string.no_matching_transactions),
-                        modifier = modifier
-                            .fillMaxSize()
-                            .wrapContentSize()
+                        modifier = modifier.fillMaxSize().wrapContentSize()
                     )
                 }
             } else {
-                val transactionGroups = groupTransactionsByDate(transactions = filteredTransactions)
+                val transactionGroups = groupTransactionsByDate(filteredTransactions)
 
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -255,6 +349,7 @@ private fun TransactionListContentPreview() {
         TransactionListContent(
             uiState = TransactionListUiState.Success(sampleTransactions, emptyMap()),
             searchQuery = "",
+            filters = TransactionFilterState(),
             onAddTransaction = {},
             onEditTransaction = {},
             onDelete = {}
@@ -269,6 +364,7 @@ private fun EmptyTransactionListContentPreview() {
         TransactionListContent(
             uiState = TransactionListUiState.Success(emptyList(), emptyMap()),
             searchQuery = "",
+            filters = TransactionFilterState(),
             onAddTransaction = {},
             onDelete = {},
             onEditTransaction = {}
@@ -283,6 +379,7 @@ private fun ErrorTransactionListContentPreview() {
         TransactionListContent(
             uiState = TransactionListUiState.Error("Something went wrong!!"),
             searchQuery = "",
+            filters = TransactionFilterState(),
             onAddTransaction = {},
             onDelete = {},
             onEditTransaction = {}
@@ -297,6 +394,7 @@ private fun LoadingTransactionListContentPreview() {
         TransactionListContent(
             uiState = TransactionListUiState.Loading,
             searchQuery = "",
+            filters = TransactionFilterState(),
             onAddTransaction = {},
             onDelete = {},
             onEditTransaction = {}
