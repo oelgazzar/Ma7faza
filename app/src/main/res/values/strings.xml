@@ -35,4 +35,8 @@
     <string name="expense">Expense</string>
     <string name="reset">Reset</string>
     <string name="apply">Apply</string>
+    <string name="date_range">Date range</string>
+    <string name="from_date">From</string>
+    <string name="to_date">To</string>
+    <string name="clear_date_range">Clear date range</string>
 </resources>
