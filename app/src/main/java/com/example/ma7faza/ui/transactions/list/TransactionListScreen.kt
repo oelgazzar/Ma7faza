@@ -362,7 +362,6 @@ private fun TransactionFilterSheet(
     }
 }
 
-@Composable
 private enum class DatePickerTarget { START, END }
 
 private fun TransactionFilterState.hasActiveFilters(): Boolean =
