@@ -230,26 +230,43 @@ private fun TransactionFilterSheet(
             style = MaterialTheme.typography.titleMedium
         )
 
-        TransactionTypeFilter.entries.forEach { type ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TransactionTypeFilter.entries.forEach { type ->
+                FilterChip(
                     selected = temporaryFilters.type == type,
-                    onClick = {
-                        temporaryFilters = temporaryFilters.copy(type = type)
+                    onClick = { temporaryFilters = temporaryFilters.copy(type = type) },
+                    label = {
+                        Text(when (type) {
+                            TransactionTypeFilter.ALL -> stringResource(R.string.all_transactions)
+                            TransactionTypeFilter.INCOME -> stringResource(R.string.income)
+                            TransactionTypeFilter.EXPENSE -> stringResource(R.string.expense)
+                        })
                     }
                 )
-                Text(
-                    text = when (type) {
-                        TransactionTypeFilter.ALL -> stringResource(R.string.all_transactions)
-                        TransactionTypeFilter.INCOME -> stringResource(R.string.income)
-                        TransactionTypeFilter.EXPENSE -> stringResource(R.string.expense)
+            }
+        }
+
+        HorizontalDivider()
+        Text(stringResource(R.string.category), style = MaterialTheme.typography.titleMedium)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(
+                selected = temporaryFilters.categoryIds.isEmpty(),
+                onClick = { temporaryFilters = temporaryFilters.copy(categoryIds = emptySet()) },
+                label = { Text(stringResource(R.string.all_transactions)) }
+            )
+            categories.filter { category ->
+                temporaryFilters.type == TransactionTypeFilter.ALL ||
+                    (temporaryFilters.type == TransactionTypeFilter.INCOME && category.type == TransactionType.INCOME) ||
+                    (temporaryFilters.type == TransactionTypeFilter.EXPENSE && category.type == TransactionType.EXPENSE)
+            }.forEach { category ->
+                FilterChip(
+                    selected = category.id in temporaryFilters.categoryIds,
+                    onClick = {
+                        val selected = temporaryFilters.categoryIds.toMutableSet()
+                        if (!selected.add(category.id)) selected.remove(category.id)
+                        temporaryFilters = temporaryFilters.copy(categoryIds = selected)
                     },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 8.dp)
+                    label = { Text(category.name) }
                 )
             }
         }
@@ -306,7 +323,7 @@ private fun TransactionListContent(
                 filters = filters,
                 categories = uiState.categories
             )
-            val hasActiveFilter = filters.type != TransactionTypeFilter.ALL
+            val hasActiveFilter = filters.type != TransactionTypeFilter.ALL || filters.categoryIds.isNotEmpty() || filters.startDate != null || filters.endDate != null
 
             if (filteredTransactions.isEmpty()) {
                 if (searchQuery.isBlank() && !hasActiveFilter) {
