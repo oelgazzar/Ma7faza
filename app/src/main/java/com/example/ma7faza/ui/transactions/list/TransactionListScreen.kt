@@ -33,6 +33,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -63,6 +65,7 @@ fun TransactionListScreen(
     val snackBarState = remember { SnackbarHostState() }
     var isSearchExpanded by rememberSaveable { mutableStateOf(false) }
     val searchQuery = rememberTextFieldState()
+    val focusRequester =  remember { FocusRequester() }
 
     LaunchedEffect(viewModel) {
         var job: Job? = null
@@ -87,6 +90,12 @@ fun TransactionListScreen(
         }
     }
 
+    LaunchedEffect(isSearchExpanded) {
+        if (isSearchExpanded) {
+            focusRequester.requestFocus()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -96,13 +105,14 @@ fun TransactionListScreen(
                             state = searchQuery,
                             placeholder = { Text(stringResource(R.string.search_transactions)) },
                             lineLimits = TextFieldLineLimits.SingleLine,
-                            modifier = Modifier.fillMaxWidth(),
                             colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.Transparent,
                                 unfocusedContainerColor = Color.Transparent,
                                 focusedIndicatorColor = Color.Transparent,
                                 unfocusedIndicatorColor = Color.Transparent
-                            )
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                                .focusRequester(focusRequester)
                         )
                     } else {
                         Text(stringResource(R.string.transactions))
@@ -119,7 +129,9 @@ fun TransactionListScreen(
                             Text(stringResource(R.string.cancel))
                         }
                     } else {
-                        IconButton(onClick = { isSearchExpanded = true }) {
+                        IconButton(onClick = {
+                            isSearchExpanded = true
+                        }) {
                             Icon(
                                 search,
                                 null,
