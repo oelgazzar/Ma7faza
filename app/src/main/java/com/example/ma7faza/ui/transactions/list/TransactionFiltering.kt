@@ -3,6 +3,7 @@ package com.example.ma7faza.ui.transactions.list
 import com.example.ma7faza.domain.models.Category
 import com.example.ma7faza.domain.models.Transaction
 import com.example.ma7faza.domain.models.TransactionType
+import java.time.LocalDate
 
 enum class TransactionTypeFilter {
     ALL,
@@ -11,7 +12,10 @@ enum class TransactionTypeFilter {
 }
 
 data class TransactionFilterState(
-    val type: TransactionTypeFilter = TransactionTypeFilter.ALL
+    val type: TransactionTypeFilter = TransactionTypeFilter.ALL,
+    val categoryIds: Set<String> = emptySet(),
+    val startDate: LocalDate? = null,
+    val endDate: LocalDate? = null
 )
 
 fun filterTransactions(
@@ -31,12 +35,18 @@ fun filterTransactions(
                 transaction.type == TransactionType.EXPENSE
         }
 
+        val matchesCategory = filters.categoryIds.isEmpty() ||
+            transaction.categoryId in filters.categoryIds
+
+        val matchesDate = (filters.startDate == null || !transaction.date.isBefore(filters.startDate)) &&
+            (filters.endDate == null || !transaction.date.isAfter(filters.endDate))
+
         val matchesQuery = normalizedQuery.isBlank() ||
             transaction.name.contains(normalizedQuery, ignoreCase = true) ||
             transaction.note.orEmpty().contains(normalizedQuery, ignoreCase = true) ||
             categories[transaction.categoryId]?.name
                 ?.contains(normalizedQuery, ignoreCase = true) == true
 
-        matchesType && matchesQuery
+        matchesType && matchesCategory && matchesDate && matchesQuery
     }
 }
