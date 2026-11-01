@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.clearText
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -38,7 +37,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -71,19 +69,13 @@ fun TransactionListScreen(
     viewModel: TransactionListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val searchQueryValue by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val searchQuery = viewModel.searchQuery
     val filters by viewModel.filters.collectAsStateWithLifecycle()
     val snackBarState = remember { SnackbarHostState() }
     var isSearchExpanded by rememberSaveable { mutableStateOf(false) }
     var isFilterSheetVisible by rememberSaveable { mutableStateOf(false) }
-    val searchQuery = rememberTextFieldState(initialText = searchQueryValue)
     val focusRequester = remember { FocusRequester() }
     val errorMessage = stringResource(R.string.transaction_deleted)
-
-    LaunchedEffect(searchQuery) {
-        snapshotFlow { searchQuery.text.toString() }
-            .collect(viewModel::updateSearchQuery)
-    }
 
     LaunchedEffect(viewModel) {
         var job: Job? = null
@@ -179,7 +171,7 @@ fun TransactionListScreen(
     ) { innerPadding ->
         TransactionListContent(
             uiState = uiState,
-            searchQuery = searchQueryValue,
+            searchQuery = searchQuery.text.toString(),
             filters = filters,
             onAddTransaction = onAddTransaction,
             onEditTransaction = onEditTransaction,
