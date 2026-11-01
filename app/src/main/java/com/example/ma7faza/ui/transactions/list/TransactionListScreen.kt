@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -69,18 +70,19 @@ fun TransactionListScreen(
     viewModel: TransactionListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val searchQueryValue by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val filters by viewModel.filters.collectAsStateWithLifecycle()
     val snackBarState = remember { SnackbarHostState() }
     var isSearchExpanded by rememberSaveable { mutableStateOf(false) }
-    val searchQuery = rememberTextFieldState()
-    val focusRequester = remember { FocusRequester() }
-    var appliedTypeFilter by rememberSaveable {
-        mutableStateOf(TransactionTypeFilter.ALL)
-    }
-    var draftTypeFilter by rememberSaveable {
-        mutableStateOf(TransactionTypeFilter.ALL)
-    }
     var isFilterSheetVisible by rememberSaveable { mutableStateOf(false) }
+    val searchQuery = rememberTextFieldState(initialText = searchQueryValue)
+    val focusRequester = remember { FocusRequester() }
     val errorMessage = stringResource(R.string.transaction_deleted)
+
+    LaunchedEffect(searchQuery) {
+        snapshotFlow { searchQuery.text.toString() }
+            .collect(viewModel::updateSearchQuery)
+    }
 
     LaunchedEffect(viewModel) {
         var job: Job? = null
@@ -152,14 +154,9 @@ fun TransactionListScreen(
                         }
                     }
 
-                    TextButton(
-                        onClick = {
-                            draftTypeFilter = appliedTypeFilter
-                            isFilterSheetVisible = true
-                        }
-                    ) {
+                    TextButton(onClick = { isFilterSheetVisible = true }) {
                         Text(
-                            if (appliedTypeFilter == TransactionTypeFilter.ALL) {
+                            if (filters.type == TransactionTypeFilter.ALL) {
                                 stringResource(R.string.filter)
                             } else {
                                 stringResource(R.string.filter_active)
@@ -181,8 +178,8 @@ fun TransactionListScreen(
     ) { innerPadding ->
         TransactionListContent(
             uiState = uiState,
-            searchQuery = searchQuery.text.toString(),
-            filters = TransactionFilterState(appliedTypeFilter),
+            searchQuery = searchQueryValue,
+            filters = filters,
             onAddTransaction = onAddTransaction,
             onEditTransaction = onEditTransaction,
             onDelete = viewModel::deleteTransaction,
@@ -197,11 +194,9 @@ fun TransactionListScreen(
             onDismissRequest = { isFilterSheetVisible = false }
         ) {
             TransactionFilterSheet(
-                selectedType = draftTypeFilter,
-                onTypeSelected = { draftTypeFilter = it },
-                onReset = { draftTypeFilter = TransactionTypeFilter.ALL },
-                onApply = {
-                    appliedTypeFilter = draftTypeFilter
+                initialFilters = filters,
+                onApply = { updatedFilters ->
+                    viewModel.updateFilters(updatedFilters)
                     isFilterSheetVisible = false
                 }
             )
@@ -211,12 +206,14 @@ fun TransactionListScreen(
 
 @Composable
 private fun TransactionFilterSheet(
-    selectedType: TransactionTypeFilter,
-    onTypeSelected: (TransactionTypeFilter) -> Unit,
-    onReset: () -> Unit,
-    onApply: () -> Unit,
+    initialFilters: TransactionFilterState,
+    onApply: (TransactionFilterState) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var temporaryFilters by remember {
+        mutableStateOf(initialFilters)
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -239,8 +236,10 @@ private fun TransactionFilterSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 RadioButton(
-                    selected = selectedType == type,
-                    onClick = { onTypeSelected(type) }
+                    selected = temporaryFilters.type == type,
+                    onClick = {
+                        temporaryFilters = temporaryFilters.copy(type = type)
+                    }
                 )
                 Text(
                     text = when (type) {
@@ -262,10 +261,14 @@ private fun TransactionFilterSheet(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TextButton(onClick = onReset) {
+            TextButton(
+                onClick = {
+                    temporaryFilters = TransactionFilterState()
+                }
+            ) {
                 Text(stringResource(R.string.reset))
             }
-            Button(onClick = onApply) {
+            Button(onClick = { onApply(temporaryFilters) }) {
                 Text(stringResource(R.string.apply))
             }
         }
