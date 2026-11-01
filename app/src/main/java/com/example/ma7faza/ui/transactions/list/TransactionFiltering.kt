@@ -1,5 +1,6 @@
 package com.example.ma7faza.ui.transactions.list
 
+import com.example.ma7faza.domain.models.Category
 import com.example.ma7faza.domain.models.Transaction
 import com.example.ma7faza.domain.models.TransactionType
 
@@ -9,15 +10,20 @@ enum class TransactionTypeFilter {
     EXPENSE
 }
 
+data class TransactionFilterState(
+    val type: TransactionTypeFilter = TransactionTypeFilter.ALL
+)
+
 fun filterTransactions(
     transactions: List<Transaction>,
     query: String,
-    typeFilter: TransactionTypeFilter
+    filters: TransactionFilterState,
+    categories: Map<String, Category>
 ): List<Transaction> {
     val normalizedQuery = query.trim()
 
     return transactions.filter { transaction ->
-        val matchesType = when (typeFilter) {
+        val matchesType = when (filters.type) {
             TransactionTypeFilter.ALL -> true
             TransactionTypeFilter.INCOME ->
                 transaction.type == TransactionType.INCOME
@@ -27,7 +33,9 @@ fun filterTransactions(
 
         val matchesQuery = normalizedQuery.isBlank() ||
             transaction.name.contains(normalizedQuery, ignoreCase = true) ||
-            transaction.note.orEmpty().contains(normalizedQuery, ignoreCase = true)
+            transaction.note.orEmpty().contains(normalizedQuery, ignoreCase = true) ||
+            categories[transaction.categoryId]?.name
+                ?.contains(normalizedQuery, ignoreCase = true) == true
 
         matchesType && matchesQuery
     }
