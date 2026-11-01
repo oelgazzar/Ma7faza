@@ -8,8 +8,10 @@ import com.example.ma7faza.domain.repository.CategoryRepository
 import com.example.ma7faza.domain.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -40,6 +42,20 @@ class TransactionListViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = TransactionListUiState.Loading
         )
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    private val _filters = MutableStateFlow(TransactionFilterState())
+    val filters: StateFlow<TransactionFilterState> = _filters.asStateFlow()
+
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun updateFilters(filters: TransactionFilterState) {
+        _filters.value = filters
+    }
 
     var deletedTransaction: Transaction? = null
 
