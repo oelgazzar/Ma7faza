@@ -26,4 +26,13 @@
     <string name="cancel">Cancel</string>
     <string name="transaction_deleted">Transaction deleted</string>
     <string name="no_matching_transactions">No matching transactions</string>
+    <string name="filter">Filter</string>
+    <string name="filter_active">Filter • Active</string>
+    <string name="filter_transactions">Filter transactions</string>
+    <string name="transaction_type">Transaction type</string>
+    <string name="all_transactions">All</string>
+    <string name="income">Income</string>
+    <string name="expense">Expense</string>
+    <string name="reset">Reset</string>
+    <string name="apply">Apply</string>
 </resources>
