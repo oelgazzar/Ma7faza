@@ -8,21 +8,34 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,7 +45,8 @@ import com.example.ma7faza.R
 import com.example.ma7faza.data.sample.sampleTransactions
 import com.example.ma7faza.domain.models.Transaction
 import com.example.ma7faza.ui.theme.AppTheme
-import com.example.test.add
+import com.example.ma7faza.ui.theme.icons.add
+import com.example.ma7faza.ui.theme.icons.search
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -49,20 +63,24 @@ fun TransactionListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackBarState = remember { SnackbarHostState() }
+    var isSearchExpanded by rememberSaveable { mutableStateOf(false) }
+    val searchQuery = rememberTextFieldState()
+    val focusRequester =  remember { FocusRequester() }
+    val errorMessage = stringResource(R.string.transaction_deleted)
 
     LaunchedEffect(viewModel) {
         var job: Job? = null
         viewModel.events.collect { event ->
-            when(event) {
+            when (event) {
                 TransactionListUiEvent.OnDelete -> {
                     job?.cancel()
                     job = launch {
                         snackBarState.showSnackbar(
-                            message = "Transaction deleted",
+                            message = errorMessage,
                             actionLabel = "Undo",
                             withDismissAction = true
                         ).run {
-                            when(this) {
+                            when (this) {
                                 SnackbarResult.ActionPerformed -> viewModel.undoDelete()
                                 SnackbarResult.Dismissed -> viewModel.onConfirmDelete()
                             }
@@ -73,11 +91,56 @@ fun TransactionListScreen(
         }
     }
 
+    LaunchedEffect(isSearchExpanded) {
+        if (isSearchExpanded) {
+            focusRequester.requestFocus()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Transactions")
+                    if (isSearchExpanded) {
+                        TextField(
+                            state = searchQuery,
+                            placeholder = { Text(stringResource(R.string.search_transactions)) },
+                            lineLimits = TextFieldLineLimits.SingleLine,
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(focusRequester)
+                        )
+                    } else {
+                        Text(stringResource(R.string.transactions))
+                    }
+                },
+                actions = {
+                    if (isSearchExpanded) {
+                        TextButton(
+                            onClick = {
+                                searchQuery.clearText()
+                                isSearchExpanded = false
+                            }
+                        ) {
+                            Text(stringResource(R.string.cancel))
+                        }
+                    } else {
+                        IconButton(onClick = {
+                            isSearchExpanded = true
+                        }) {
+                            Icon(
+                                search,
+                                null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
                 }
             )
         },
@@ -94,7 +157,8 @@ fun TransactionListScreen(
         }
     ) { innerPadding ->
         TransactionListContent(
-            uiState,
+            uiState = uiState,
+            searchQuery = searchQuery.text.toString(),
             onAddTransaction = onAddTransaction,
             onEditTransaction = onEditTransaction,
             onDelete = viewModel::deleteTransaction,
@@ -108,6 +172,7 @@ fun TransactionListScreen(
 @Composable
 private fun TransactionListContent(
     uiState: TransactionListUiState,
+    searchQuery: String,
     onAddTransaction: () -> Unit,
     onEditTransaction: (Long) -> Unit,
     onDelete: (Transaction) -> Unit,
@@ -132,19 +197,36 @@ private fun TransactionListContent(
         }
 
         is TransactionListUiState.Success -> {
-            if (uiState.transactions.isEmpty()) {
-                EmptyScreen(
-                    onAddTransaction = onAddTransaction,
-                    modifier
-                )
+            val query = searchQuery.trim()
+            val filteredTransactions = if (query.isBlank()) {
+                uiState.transactions
             } else {
-                val transactionGroups = groupTransactionsByDate(transactions = uiState.transactions)
+                uiState.transactions.filter { transaction ->
+                    transaction.name.contains(query, ignoreCase = true) ||
+                            transaction.note.orEmpty().contains(query, ignoreCase = true) ||
+                            uiState.categories[transaction.categoryId]?.name
+                                ?.contains(query, ignoreCase = true) == true
+                }
+            }
+
+            if (filteredTransactions.isEmpty()) {
+                if (query.isBlank()) {
+                    EmptyScreen(onAddTransaction = onAddTransaction, modifier = modifier)
+                } else {
+                    Text(
+                        text = stringResource(R.string.no_matching_transactions),
+                        modifier = modifier
+                            .fillMaxSize()
+                            .wrapContentSize()
+                    )
+                }
+            } else {
+                val transactionGroups = groupTransactionsByDate(transactions = filteredTransactions)
 
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(vertical = 8.dp),
-                    modifier = modifier
-                        .fillMaxSize()
+                    modifier = modifier.fillMaxSize()
                 ) {
                     transactionGroups.forEach { group ->
                         item(key = group.date) {
@@ -172,6 +254,7 @@ private fun TransactionListContentPreview() {
     AppTheme {
         TransactionListContent(
             uiState = TransactionListUiState.Success(sampleTransactions, emptyMap()),
+            searchQuery = "",
             onAddTransaction = {},
             onEditTransaction = {},
             onDelete = {}
@@ -185,6 +268,7 @@ private fun EmptyTransactionListContentPreview() {
     AppTheme {
         TransactionListContent(
             uiState = TransactionListUiState.Success(emptyList(), emptyMap()),
+            searchQuery = "",
             onAddTransaction = {},
             onDelete = {},
             onEditTransaction = {}
@@ -198,6 +282,7 @@ private fun ErrorTransactionListContentPreview() {
     AppTheme {
         TransactionListContent(
             uiState = TransactionListUiState.Error("Something went wrong!!"),
+            searchQuery = "",
             onAddTransaction = {},
             onDelete = {},
             onEditTransaction = {}
@@ -211,6 +296,7 @@ private fun LoadingTransactionListContentPreview() {
     AppTheme {
         TransactionListContent(
             uiState = TransactionListUiState.Loading,
+            searchQuery = "",
             onAddTransaction = {},
             onDelete = {},
             onEditTransaction = {}
