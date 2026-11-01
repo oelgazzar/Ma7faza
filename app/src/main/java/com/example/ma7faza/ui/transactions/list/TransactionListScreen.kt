@@ -16,6 +16,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,6 +63,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import java.time.Instant
+import java.time.ZoneOffset
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -210,9 +215,8 @@ private fun TransactionFilterSheet(
     onApply: (TransactionFilterState) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var temporaryFilters by remember {
-        mutableStateOf(initialFilters)
-    }
+    var temporaryFilters by remember(initialFilters) { mutableStateOf(initialFilters) }
+    var datePickerTarget by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -272,6 +276,26 @@ private fun TransactionFilterSheet(
         }
 
         HorizontalDivider()
+        Text(stringResource(R.string.date_range), style = MaterialTheme.typography.titleMedium)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(
+                selected = temporaryFilters.startDate != null,
+                onClick = { datePickerTarget = true },
+                label = { Text(temporaryFilters.startDate?.toString() ?: stringResource(R.string.from_date)) }
+            )
+            FilterChip(
+                selected = temporaryFilters.endDate != null,
+                onClick = { datePickerTarget = true },
+                label = { Text(temporaryFilters.endDate?.toString() ?: stringResource(R.string.to_date)) }
+            )
+        }
+        if (temporaryFilters.startDate != null || temporaryFilters.endDate != null) {
+            TextButton(onClick = {
+                temporaryFilters = temporaryFilters.copy(startDate = null, endDate = null)
+            }) { Text(stringResource(R.string.clear_date_range)) }
+        }
+
+        HorizontalDivider()
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -289,6 +313,32 @@ private fun TransactionFilterSheet(
                 Text(stringResource(R.string.apply))
             }
         }
+    }
+
+    if (datePickerTarget) {
+        val pickerState = rememberDatePickerState()
+        DatePickerDialog(
+            onDismissRequest = { datePickerTarget = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    val selectedDate = pickerState.selectedDateMillis?.let {
+                        Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()
+                    }
+                    if (selectedDate != null) {
+                        temporaryFilters = temporaryFilters.copy(
+                            startDate = selectedDate,
+                            endDate = temporaryFilters.endDate?.takeIf { !it.isBefore(selectedDate) }
+                        )
+                    }
+                    datePickerTarget = false
+                }) { Text(stringResource(R.string.apply)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { datePickerTarget = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        ) { DatePicker(state = pickerState) }
     }
 }
 
