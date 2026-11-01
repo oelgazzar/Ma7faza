@@ -124,18 +124,53 @@ class TransactionFilteringTest {
         assertEquals(listOf(2L), result.map { it.id })
     }
 
+    @Test
+    fun `category filter supports multiple selected categories`() {
+        val result = filterTransactions(
+            transactions,
+            "",
+            TransactionFilterState(categoryIds = setOf("FOOD", "TRANSPORT")),
+            categories
+        )
+
+        assertEquals(listOf(2L, 4L), result.map { it.id })
+    }
+
+    @Test
+    fun `date range includes both boundary dates`() {
+        val datedTransactions = listOf(
+            transaction(5, "Before", TransactionType.EXPENSE, categoryId = "FOOD", date = LocalDate.of(2026, 10, 31)),
+            transaction(6, "Start", TransactionType.EXPENSE, categoryId = "FOOD", date = LocalDate.of(2026, 11, 1)),
+            transaction(7, "End", TransactionType.EXPENSE, categoryId = "FOOD", date = LocalDate.of(2026, 11, 3)),
+            transaction(8, "After", TransactionType.EXPENSE, categoryId = "FOOD", date = LocalDate.of(2026, 11, 4))
+        )
+
+        val result = filterTransactions(
+            datedTransactions,
+            "",
+            TransactionFilterState(
+                startDate = LocalDate.of(2026, 11, 1),
+                endDate = LocalDate.of(2026, 11, 3)
+            ),
+            categories
+        )
+
+        assertEquals(listOf(6L, 7L), result.map { it.id })
+    }
+
     private fun transaction(
         id: Long,
         name: String,
         type: TransactionType,
         note: String? = null,
-        categoryId: String
+        categoryId: String,
+        date: LocalDate = LocalDate.of(2026, 11, 1)
     ) = Transaction(
         id = id,
         name = name,
         amountMinor = 1000,
         note = note,
-        date = LocalDate.of(2026, 11, 1),
+        date = date,
         type = type,
         categoryId = categoryId
     )
