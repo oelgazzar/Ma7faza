@@ -33,7 +33,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             )
         }
         composable<TransactionForm> {
-            TransactionFormScreen(navigateBack = { navController.popBackStack() })
+            TransactionFormScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }

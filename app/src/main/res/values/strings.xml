@@ -39,4 +39,6 @@
     <string name="from_date">From</string>
     <string name="to_date">To</string>
     <string name="clear_date_range">Clear date range</string>
+    <string name="edit_transaction">Edit transaction</string>
+    <string name="new_transaction">New transaction</string>
 </resources>

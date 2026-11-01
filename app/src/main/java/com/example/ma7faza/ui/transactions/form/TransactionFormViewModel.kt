@@ -10,6 +10,7 @@ import com.example.ma7faza.domain.repository.CategoryRepository
 import com.example.ma7faza.domain.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -41,6 +42,10 @@ class TransactionFormViewModel @Inject constructor(
     private val _events = Channel<TransactionFormUiEvent>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
+
+    private val _mode = MutableStateFlow<TransactionFormMode?>(null)
+    val mode = _mode.asStateFlow()
+
     init {
         transactionId?.let { id ->
             viewModelScope.launch {
@@ -56,8 +61,10 @@ class TransactionFormViewModel @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun showForm(formState: TransactionFormState) {
         _uiState.value = TransactionFormUiState.Success(formState)
+        _mode.value = if (transactionId == null) TransactionFormMode.New else TransactionFormMode.Edit
 
         viewModelScope.launch {
             snapshotFlow { formState.type }
@@ -92,4 +99,9 @@ class TransactionFormViewModel @Inject constructor(
 sealed interface TransactionFormUiEvent {
     data object OnSaveDone : TransactionFormUiEvent
     data object OnSaveError : TransactionFormUiEvent
+}
+
+enum class TransactionFormMode {
+    New,
+    Edit
 }
