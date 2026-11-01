@@ -216,7 +216,7 @@ private fun TransactionFilterSheet(
     modifier: Modifier = Modifier
 ) {
     var temporaryFilters by remember(initialFilters) { mutableStateOf(initialFilters) }
-    var datePickerTarget by remember { mutableStateOf(false) }
+    var datePickerTarget by remember { mutableStateOf<DatePickerTarget?>(null) }
 
     Column(
         modifier = modifier
@@ -280,12 +280,12 @@ private fun TransactionFilterSheet(
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FilterChip(
                 selected = temporaryFilters.startDate != null,
-                onClick = { datePickerTarget = true },
+                onClick = { datePickerTarget = DatePickerTarget.START },
                 label = { Text(temporaryFilters.startDate?.toString() ?: stringResource(R.string.from_date)) }
             )
             FilterChip(
                 selected = temporaryFilters.endDate != null,
-                onClick = { datePickerTarget = true },
+                onClick = { datePickerTarget = DatePickerTarget.END },
                 label = { Text(temporaryFilters.endDate?.toString() ?: stringResource(R.string.to_date)) }
             )
         }
@@ -315,32 +315,45 @@ private fun TransactionFilterSheet(
         }
     }
 
-    if (datePickerTarget) {
-        val pickerState = rememberDatePickerState()
+    datePickerTarget?.let { target ->
+        val initialDate = if (target == DatePickerTarget.START) temporaryFilters.startDate else temporaryFilters.endDate
+        val pickerState = rememberDatePickerState(
+            initialSelectedDateMillis = initialDate?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
+        )
         DatePickerDialog(
-            onDismissRequest = { datePickerTarget = false },
+            onDismissRequest = { datePickerTarget = null },
             confirmButton = {
                 TextButton(onClick = {
                     val selectedDate = pickerState.selectedDateMillis?.let {
                         Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()
                     }
                     if (selectedDate != null) {
-                        temporaryFilters = temporaryFilters.copy(
-                            startDate = selectedDate,
-                            endDate = temporaryFilters.endDate?.takeIf { !it.isBefore(selectedDate) }
-                        )
+                        temporaryFilters = if (target == DatePickerTarget.START) {
+                            temporaryFilters.copy(
+                                startDate = selectedDate,
+                                endDate = temporaryFilters.endDate?.takeIf { !it.isBefore(selectedDate) }
+                            )
+                        } else {
+                            temporaryFilters.copy(
+                                endDate = selectedDate,
+                                startDate = temporaryFilters.startDate?.takeIf { !it.isAfter(selectedDate) }
+                            )
+                        }
                     }
-                    datePickerTarget = false
+                    datePickerTarget = null
                 }) { Text(stringResource(R.string.apply)) }
             },
             dismissButton = {
-                TextButton(onClick = { datePickerTarget = false }) {
+                TextButton(onClick = { datePickerTarget = null }) {
                     Text(stringResource(R.string.cancel))
                 }
             }
         ) { DatePicker(state = pickerState) }
     }
 }
+
+@Composable
+private enum class DatePickerTarget { START, END }
 
 @Composable
 private fun TransactionListContent(
