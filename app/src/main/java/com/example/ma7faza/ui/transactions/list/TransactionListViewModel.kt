@@ -1,5 +1,6 @@
 package com.example.ma7faza.ui.transactions.list
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ma7faza.domain.models.Transaction
@@ -43,15 +44,10 @@ class TransactionListViewModel @Inject constructor(
             initialValue = TransactionListUiState.Loading
         )
 
-    private val _searchQuery = MutableStateFlow("")
-    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+    val searchQuery = TextFieldState()
 
     private val _filters = MutableStateFlow(TransactionFilterState())
     val filters: StateFlow<TransactionFilterState> = _filters.asStateFlow()
-
-    fun updateSearchQuery(query: String) {
-        _searchQuery.value = query
-    }
 
     fun updateFilters(filters: TransactionFilterState) {
         _filters.value = filters
