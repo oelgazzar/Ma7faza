@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,6 +51,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ma7faza.R
 import com.example.ma7faza.data.sample.sampleTransactions
 import com.example.ma7faza.domain.models.Transaction
+import com.example.ma7faza.domain.models.Category
+import com.example.ma7faza.domain.models.TransactionType
 import com.example.ma7faza.ui.theme.AppTheme
 import com.example.ma7faza.ui.theme.icons.add
 import com.example.ma7faza.ui.theme.icons.search
@@ -57,6 +60,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import java.time.Instant
+import java.time.ZoneOffset
 
 @Serializable
 data object TransactionList
@@ -188,6 +193,7 @@ fun TransactionListScreen(
         ) {
             TransactionFilterSheet(
                 initialFilters = filters,
+                categories = (uiState as? TransactionListUiState.Success)?.categories?.values?.toList().orEmpty(),
                 onApply = { updatedFilters ->
                     viewModel.updateFilters(updatedFilters)
                     isFilterSheetVisible = false
@@ -200,6 +206,7 @@ fun TransactionListScreen(
 @Composable
 private fun TransactionFilterSheet(
     initialFilters: TransactionFilterState,
+    categories: List<Category>,
     onApply: (TransactionFilterState) -> Unit,
     modifier: Modifier = Modifier
 ) {
