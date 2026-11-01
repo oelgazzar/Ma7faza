@@ -1,5 +1,6 @@
 package com.example.ma7faza.fakes
 
+import com.example.ma7faza.domain.models.CategoryExpense
 import com.example.ma7faza.domain.models.Transaction
 import com.example.ma7faza.domain.models.TransactionSummary
 import com.example.ma7faza.domain.models.TransactionType
@@ -34,6 +35,13 @@ class FakeTransactionRepository : TransactionRepository {
                 (endDate == null || it.date <= endDate)
         }
         return flowOf(selected.toSummary())
+    }
+
+    override fun observeCategoryExpenses(
+        startDate: LocalDate?,
+        endDate: LocalDate?
+    ): Flow<List<CategoryExpense>> {
+        TODO("Not yet implemented")
     }
 
     private fun observeSummaryValue() = transactions.toSummary()

@@ -33,9 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ma7faza.R
+import com.example.ma7faza.ui.theme.icons.add
 import com.example.ma7faza.ui.transactions.components.TransactionItem
 import com.example.ma7faza.utils.formatCurrency
-import com.example.test.add
 
 @Composable
 fun DashboardScreen(

@@ -28,7 +28,8 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
         composable<TransactionList> {
             TransactionListScreen(
                 onAddTransaction = { navController.navigate(TransactionForm()) },
-                onEditTransaction = { navController.navigate(TransactionForm(it)) }
+                onEditTransaction = { navController.navigate(TransactionForm(it)) },
+                onNavigateBack = { navController.popBackStack() }
             )
         }
         composable<TransactionForm> {
