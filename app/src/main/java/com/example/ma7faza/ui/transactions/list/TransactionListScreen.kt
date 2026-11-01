@@ -45,8 +45,8 @@ import com.example.ma7faza.R
 import com.example.ma7faza.data.sample.sampleTransactions
 import com.example.ma7faza.domain.models.Transaction
 import com.example.ma7faza.ui.theme.AppTheme
-import com.example.test.add
-import com.example.test.search
+import com.example.ma7faza.ui.theme.icons.add
+import com.example.ma7faza.ui.theme.icons.search
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -66,6 +66,7 @@ fun TransactionListScreen(
     var isSearchExpanded by rememberSaveable { mutableStateOf(false) }
     val searchQuery = rememberTextFieldState()
     val focusRequester =  remember { FocusRequester() }
+    val errorMessage = stringResource(R.string.transaction_deleted)
 
     LaunchedEffect(viewModel) {
         var job: Job? = null
@@ -75,7 +76,7 @@ fun TransactionListScreen(
                     job?.cancel()
                     job = launch {
                         snackBarState.showSnackbar(
-                            message = "Transaction deleted",
+                            message = errorMessage,
                             actionLabel = "Undo",
                             withDismissAction = true
                         ).run {
@@ -111,7 +112,8 @@ fun TransactionListScreen(
                                 focusedIndicatorColor = Color.Transparent,
                                 unfocusedIndicatorColor = Color.Transparent
                             ),
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
                                 .focusRequester(focusRequester)
                         )
                     } else {
@@ -212,7 +214,7 @@ private fun TransactionListContent(
                     EmptyScreen(onAddTransaction = onAddTransaction, modifier = modifier)
                 } else {
                     Text(
-                        text = "No matching transactions",
+                        text = stringResource(R.string.no_matching_transactions),
                         modifier = modifier
                             .fillMaxSize()
                             .wrapContentSize()
